@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<VBox spacing="20" style="-fx-background-color: white; -fx-background-radius: 15;"
+      stylesheets="@../../css/auth/common.css"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.tech_ops_gui.controllers.auth.RegisterController">
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <Label text="Регистрация (заявка)" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"/>
+    <Label text="Заполните все поля. После одобрения администратором вы сможете войти." style="-fx-text-fill: #7F8C8D;"/>
+
+    <GridPane hgap="15" vgap="12">
+        <Label text="Логин" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="usernameField" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="modern-text-field"/>
+
+        <Label text="Пароль" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
+        <PasswordField fx:id="passwordField" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="modern-text-field"/>
+
+        <Label text="Фамилия" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="surnameField" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="modern-text-field"/>
+
+        <Label text="Имя" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="nameField" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="modern-text-field"/>
+
+        <Label text="Отчество" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="patronymicField" GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="modern-text-field"/>
+
+        <Label text="Воинское звание" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="militaryRankField" GridPane.rowIndex="5" GridPane.columnIndex="1" styleClass="modern-text-field"/>
+
+        <Label text="Телефон" GridPane.rowIndex="6" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="phoneField" GridPane.rowIndex="6" GridPane.columnIndex="1" styleClass="modern-text-field"/>
+    </GridPane>
+
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button text="Назад" onAction="#handleBack" styleClass="btn-secondary"/>
+        <Button text="Отправить заявку" onAction="#handleSubmit" styleClass="btn-primary"/>
+    </HBox>
+</VBox>

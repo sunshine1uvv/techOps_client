@@ -1,0 +1,138 @@
+.root {
+    -fx-background-color: #f0f2f5;
+}
+
+.list-view {
+      -fx-background-color: transparent;
+      -fx-border-color: transparent;
+      -fx-padding: 0;
+}
+
+.user-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+    -fx-padding: 15;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.user-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 4);
+    -fx-translate-y: -2;
+}
+
+.avatar-circle {
+    -fx-fill: linear-gradient(#3a7bd5, #3a6073);
+    -fx-stroke: #2c3e50;
+    -fx-stroke-width: 1;
+}
+
+.avatar-initials {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-translate-x: -25;
+    -fx-translate-y: -2;
+}
+
+.military-rank {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 0 0 2 0;
+}
+
+.user-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a1a1a;
+}
+
+.separator {
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 5 0 0 0;
+}
+
+.info-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #555555;
+}
+
+.icon-phone, .icon-user {
+    -fx-font-size: 14px;
+    -fx-padding: 0 5 0 0;
+}
+
+.badge {
+    -fx-font-size: 12px;
+    -fx-padding: 4 8;
+    -fx-background-radius: 20;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.badge-superadmin {
+    -fx-background-color: #9C27B0;
+}
+
+.badge-user {
+    -fx-background-color: #3498db;
+}
+
+.badge-admin {
+    -fx-background-color: #F44336;
+}
+
+.badge-active {
+    -fx-background-color: #27ae60;
+}
+
+.badge-blocked {
+    -fx-background-color: #95a5a6;
+}
+
+.creation-date {
+    -fx-font-size: 11px;
+    -fx-text-fill: #7f8c8d;
+    -fx-font-style: italic;
+}
+
+.action-button {
+    -fx-background-color: #ecf0f1;
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 12px;
+    -fx-padding: 6 12;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #d5dbdb;
+}
+
+.danger-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-border-color: #c0392b;
+}
+
+.danger-button:hover {
+    -fx-background-color: #c0392b;
+}
+
+.unblock-button {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-border-color: #1e8449;
+}
+
+.unblock-button:hover {
+    -fx-background-color: #1e8449;
+}

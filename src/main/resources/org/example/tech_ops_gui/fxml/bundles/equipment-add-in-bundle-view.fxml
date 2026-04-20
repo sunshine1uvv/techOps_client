@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.textfield.CustomTextField?>
+
+<VBox minHeight="800.0" minWidth="1000.0" spacing="15" stylesheets="@../../css/equipment-view.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.tech_ops_gui.controllers.bundles.AddInBundleViewController">
+
+    <padding>
+        <Insets bottom="20" left="20" right="20" top="20" />
+    </padding>
+     <Label style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Выбор комплекта оборудования" />
+
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Region HBox.hgrow="ALWAYS" />
+
+        <CustomTextField fx:id="searchField" prefWidth="450.0" promptText="Поиск" styleClass="search-field">
+            <left>
+                <StackPane style="-fx-padding: 0 10 0 10;">
+                    <ImageView fitWidth="14.0" preserveRatio="true">
+                        <Image url="@../../icons/search.png" />
+                    </ImageView>
+                </StackPane>
+            </left>
+        </CustomTextField>
+
+        <Region HBox.hgrow="ALWAYS" />
+    </HBox>
+
+    <TableView fx:id="equipmentTable" VBox.vgrow="ALWAYS">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+        </columnResizePolicy>
+        <columns>
+            <TableColumn fx:id="invNumCol" text="Инв. №" />
+            <TableColumn fx:id="serialNumCol" text="Серийный №" />
+            <TableColumn fx:id="typeCol" text="Тип" />
+            <TableColumn fx:id="nameCol" text="Наименование" />
+        </columns>
+    </TableView>
+
+</VBox>

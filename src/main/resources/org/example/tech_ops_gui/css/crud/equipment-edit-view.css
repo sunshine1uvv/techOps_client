@@ -1,0 +1,114 @@
+/* Контейнер окна */
+.edit-root {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+}
+
+/* Левая панель (Прямоугольная) */
+.side-panel {
+    -fx-background-color: #2C3E50;
+    -fx-background-radius: 0;
+}
+
+.side-panel-header {
+    -fx-text-fill: #3498DB;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.side-panel-sub {
+    -fx-text-fill: #BDC3C7;
+    -fx-font-size: 10px;
+}
+
+.side-panel-value {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.side-panel-footer {
+    -fx-text-fill: #7F8C8D;
+    -fx-font-size: 9px;
+}
+
+/* Тексты формы */
+.form-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2C3E50;
+}
+
+.form-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #95A5A6;
+}
+
+/* Стили из образца add-view */
+
+.field-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #34495E;
+    -fx-font-size: 12px;
+}
+
+.modern-text-field,
+.modern-combo-box {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #DCDDE1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+}
+
+.modern-text-field:focused,
+.modern-combo-box:focused {
+    -fx-border-color: #3498DB;
+    -fx-background-color: white;
+}
+
+/* SearchableComboBox (решение проблемы "матрешки") */
+.searchable-combo-box {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.searchable-combo-box > .combo-box {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #DCDDE1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4 4;
+    -fx-font-size: 14px;
+}
+
+.searchable-combo-box > .combo-box:focused {
+    -fx-border-color: #3498DB;
+    -fx-background-color: white;
+}
+
+/* Кнопки */
+.btn-primary {
+    -fx-background-color: #3498DB;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 25;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.btn-primary:hover {
+    -fx-background-color: #2980B9;
+}
+
+.btn-secondary {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7F8C8D;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+.btn-secondary:hover {
+    -fx-text-fill: #2C3E50;
+}

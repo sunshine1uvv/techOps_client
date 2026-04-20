@@ -1,0 +1,28 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+<VBox spacing="15.0" prefHeight="550.0" prefWidth="750.0"
+      stylesheets="@../../css/bundles/equipment-bundle-view.css"
+      xmlns="http://javafx.com" xmlns:fx="http://javafx.com"
+      fx:controller="org.example.tech_ops_gui.controllers.bundles.BundleViewController">
+
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+
+    <Label text="Сведения о комплекте" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-size: 20;" />
+
+    <TreeTableView fx:id="bundleTreeTable" VBox.vgrow="ALWAYS" showRoot="true">
+        <columns>
+            <TreeTableColumn fx:id="invNumCol" text="Инвентарный №" prefWidth="150" />
+            <TreeTableColumn fx:id="serNumCol" text="Серийный №" prefWidth="150"/>
+            <TreeTableColumn fx:id="typeCol" text="Тип" prefWidth="150" />
+            <TreeTableColumn fx:id="nameCol" text="Наименование" prefWidth="250" />
+        </columns>
+        <columnResizePolicy>
+            <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+        </columnResizePolicy>
+    </TreeTableView>
+</VBox>

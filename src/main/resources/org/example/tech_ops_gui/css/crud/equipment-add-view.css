@@ -1,0 +1,65 @@
+.field-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #34495E;
+    -fx-font-size: 12px;
+}
+
+
+.modern-text-field,
+.modern-combo-box {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #DCDDE1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+}
+
+.modern-text-field:focused {
+    -fx-border-color: #3498DB;
+    -fx-background-color: white;
+}
+
+.searchable-combo-box {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.searchable-combo-box > .combo-box {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #DCDDE1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4 4;
+    -fx-font-size: 14px;
+}
+
+
+.searchable-combo-box > .combo-box:focused {
+    -fx-border-color: #3498DB;
+    -fx-background-color: white;
+}
+
+.btn-primary {
+    -fx-background-color: #3498DB;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 25;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.btn-primary:hover {
+    -fx-background-color: #2980B9;
+}
+
+.btn-secondary {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7F8C8D;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+.btn-secondary:hover {
+    -fx-text-fill: #2C3E50;
+}
+

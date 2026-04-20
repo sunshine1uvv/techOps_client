@@ -1,0 +1,31 @@
+
+.notification-bar {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #3d3d3d;
+    -fx-border-width: 1;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+
+.notification-bar > .label {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.notification-bar > .text {
+    -fx-fill: #cccccc;
+    -fx-font-size: 12px;
+}
+
+.notification-bar > .close-button {
+    -fx-background-color: #555555;
+}
+
+.notification-bar.error {
+    -fx-border-color: #ff5555;
+}
+
+.notification-bar.warning {
+    -fx-border-color: #ffaa00;
+}

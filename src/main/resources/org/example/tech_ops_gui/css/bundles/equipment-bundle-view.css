@@ -1,0 +1,23 @@
+.tree-table-view {
+    -fx-background-color: transparent;
+    -fx-border-radius: 5;
+}
+
+.tree-table-row-cell:selected {
+    -fx-background-color: #0096C9;
+    -fx-text-fill: black;
+}
+
+.tree-table-row-cell {
+    -fx-font-weight: normal;
+}
+
+.root-equipment-row {
+    -fx-background-color: #e3f2fd;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.root-equipment-row:hover {
+    -fx-background-color: #bbdefb;
+}
