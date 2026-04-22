@@ -8,6 +8,7 @@ import org.example.tech_ops_gui.entities.UserRole;
 import org.example.tech_ops_gui.entities.UserStatus;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class UserDto {
 
@@ -141,6 +142,19 @@ public class UserDto {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt.set(createdAt);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserDto userDto = (UserDto) o;
+        return Objects.equals(getId(), userDto.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 
     @Override

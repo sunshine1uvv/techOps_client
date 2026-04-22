@@ -1,13 +1,22 @@
 package org.example.tech_ops_gui.controllers;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import org.controlsfx.control.textfield.CustomTextField;
+import javafx.scene.layout.AnchorPane;
+import javafx.util.Duration;
+import javafx.util.StringConverter;
+import org.controlsfx.control.SearchableComboBox;
 import org.example.tech_ops_gui.controllers.bundles.AddInBundleViewController;
 import org.example.tech_ops_gui.controllers.bundles.BundleViewController;
 import org.example.tech_ops_gui.controllers.bundles.RemoveFromBundleViewController;
@@ -15,7 +24,11 @@ import org.example.tech_ops_gui.controllers.crud.DeleteViewController;
 import org.example.tech_ops_gui.controllers.crud.EditViewController;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.dto.UserDto;
+import org.example.tech_ops_gui.entities.EquipmentType;
+import org.example.tech_ops_gui.exceptions.CustomExceptionHandler;
 import org.example.tech_ops_gui.repository.EquipmentRepository;
+import org.example.tech_ops_gui.repository.EquipmentTypeRepository;
+import org.example.tech_ops_gui.repository.UserRepository;
 import org.example.tech_ops_gui.utils.SessionManager;
 import org.example.tech_ops_gui.utils.WindowManager;
 
@@ -45,9 +58,31 @@ public class EquipmentViewController {
     @FXML
     private TableColumn<EquipmentDto, String> isBundledCol;
     @FXML
-    private CustomTextField searchField;
-    @FXML
     private Button addEquipmentBtn;
+
+    //----------------------------------------------------------------------------------
+
+    @FXML private AnchorPane slidingPanel;
+    @FXML private Button toggleMenuBtn;
+
+    @FXML private TextField searchInvNum;
+    @FXML private TextField searchSerial;
+    @FXML private TextField searchName;
+    @FXML private SearchableComboBox<EquipmentType> searchType;
+    @FXML private TextField searchFullCode;
+    @FXML private ComboBox<Integer> searchCategory;
+    @FXML private SearchableComboBox<UserDto> searchEmployee;
+    @FXML private TextField searchLocation;
+    @FXML private CheckBox onlyFreeCheck;
+    @FXML private CheckBox onlyBundledCheck;
+
+    @FXML private ComboBox<String> sortFieldCombo;
+    @FXML private RadioButton sortAscRadio;
+    @FXML private RadioButton sortDescRadio;
+
+    private boolean filtersVisible = false;
+
+    //----------------------------------------------------------------------------------
 
     private FilteredList<EquipmentDto> filteredData;
 
@@ -63,19 +98,153 @@ public class EquipmentViewController {
         SortedList<EquipmentDto> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(equipmentTable.comparatorProperty());
         equipmentTable.setItems(sortedData);
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> updateFilter(newVal));
+        initFilterComponents();
+        setupFilterListeners();
+        initSortControls();
+    }
+
+    private void initFilterComponents() {
+        searchCategory.setItems(FXCollections.observableArrayList(1, 2, 3, 4, 5));
+        setupTypeCombo();
+        searchEmployee.setItems(UserRepository.getInstance().getUserList());
+    }
+
+    private void initSortControls() {
+        ObservableList<String> sortFields = FXCollections.observableArrayList(
+                "Инвентарный номер",
+                "Серийный номер",
+                "Тип",
+                "Наименование",
+                "Локация",
+                "Сотрудник",
+                "Категория",
+                "Код номенклатуры"
+        );
+        sortFieldCombo.setItems(sortFields);
+    }
+
+    private void setupTypeCombo() {
+        FilteredList<EquipmentType> level6Types = new FilteredList<>(EquipmentTypeRepository.getInstance().getEquipmentTypesList());
+        level6Types.setPredicate(type -> type.getLevel() != null && type.getLevel() == 6);
+        searchType.setItems(level6Types);
+        searchType.setConverter(new StringConverter<EquipmentType>() {
+            @Override
+            public String toString(EquipmentType type) {
+                return type == null ? "" : type.getName();
+            }
+
+            @Override
+            public EquipmentType fromString(String string) {
+                return null;
+            }
+        });
     }
 
 
-    private void updateFilter(String filter) {
+    private void setupFilterListeners() {
+        searchInvNum.textProperty().addListener((obs, oldVal, newVal) -> updateFilter());
+        searchSerial.textProperty().addListener((obs, oldVal, newVal) -> updateFilter());
+        searchName.textProperty().addListener((obs, oldVal, newVal) -> updateFilter());
+        searchLocation.textProperty().addListener((obs, oldVal, newVal) -> updateFilter());
+        searchFullCode.textProperty().addListener((obs, oldVal, newVal) -> updateFilter());
+
+        searchType.valueProperty().addListener((obs, oldVal, newVal) -> updateFilter());
+        searchCategory.valueProperty().addListener((obs, oldVal, newVal) -> updateFilter());
+        searchEmployee.valueProperty().addListener((obs, oldVal, newVal) -> updateFilter());
+
+        onlyFreeCheck.selectedProperty().addListener((obs, oldVal, newVal) -> updateFilter());
+        onlyBundledCheck.selectedProperty().addListener((obs, oldVal, newVal) -> updateFilter());
+    }
+
+    @FXML
+    private void applySorting() {
+        String selectedField = sortFieldCombo.getValue();
+        if (selectedField == null) return;
+
+        boolean ascending = sortAscRadio.isSelected();
+        equipmentTable.getSortOrder().clear();
+
+        TableColumn<EquipmentDto, ?> column = switch (selectedField) {
+            case "Инвентарный номер" -> invNumCol;
+            case "Серийный номер" -> serialNumCol;
+            case "Тип" -> typeCol;
+            case "Наименование" -> nameCol;
+            case "Локация" -> locationCol;
+            case "Сотрудник" -> employeeCol;
+            case "Категория" -> categoryCol;
+            case "Код номенклатуры" -> fullCodeCol;
+            default -> null;
+        };
+
+        if (column != null) {
+            column.setSortType(ascending ? TableColumn.SortType.ASCENDING : TableColumn.SortType.DESCENDING);
+            equipmentTable.getSortOrder().add(column);
+            equipmentTable.sort();
+        }
+    }
+
+    private void updateFilter() {
         filteredData.setPredicate(equipment -> {
-            if (filter == null || filter.isBlank()) return true;
-            String f = filter.toLowerCase();
-            return (equipment.getName() != null && equipment.getName().toLowerCase().contains(f)) ||
-                    (equipment.getSerialNumber() != null && equipment.getSerialNumber().toLowerCase().contains(f)) ||
-                    (equipment.getInventoryNumber() != null && equipment.getInventoryNumber().toLowerCase().contains(f)) ||
-                    (equipment.getType() != null && equipment.getType().getName().toLowerCase().contains(f));
+            boolean match = true;
+
+            if (searchInvNum.getText() != null && !searchInvNum.getText().isBlank()) {
+                match = match && equipment.getInventoryNumber() != null &&
+                        equipment.getInventoryNumber().toLowerCase().contains(searchInvNum.getText().toLowerCase());
+            }
+            if (searchSerial.getText() != null && !searchSerial.getText().isBlank()) {
+                match = match && equipment.getSerialNumber() != null &&
+                        equipment.getSerialNumber().toLowerCase().contains(searchSerial.getText().toLowerCase());
+            }
+            if (searchName.getText() != null && !searchName.getText().isBlank()) {
+                match = match && equipment.getName() != null &&
+                        equipment.getName().toLowerCase().contains(searchName.getText().toLowerCase());
+            }
+            if (searchLocation.getText() != null && !searchLocation.getText().isBlank()) {
+                match = match && equipment.getLocation() != null &&
+                        equipment.getLocation().toLowerCase().contains(searchLocation.getText().toLowerCase());
+            }
+            if (searchFullCode.getText() != null && !searchFullCode.getText().isBlank()) {
+                match = match && equipment.getType() != null && equipment.getType().getFullCode() != null &&
+                        equipment.getType().getFullCode().toLowerCase().contains(searchFullCode.getText().toLowerCase());
+            }
+
+            if (searchType.getValue() != null) {
+                match = match && equipment.getType() != null && equipment.getType().equals(searchType.getValue());
+            }
+            if (searchCategory.getValue() != null) {
+                match = match && equipment.getCategory() == searchCategory.getValue();
+            }
+            if (searchEmployee.getValue() != null) {
+                match = match && equipment.getEmployee() != null && equipment.getEmployee().equals(searchEmployee.getValue());
+            }
+
+            if (onlyFreeCheck.isSelected()) {
+                match = match && equipment.getEmployee() == null && equipment.getParent() == null;
+            }
+            if (onlyBundledCheck.isSelected()) {
+                match = match && equipment.getParent() != null;
+            }
+
+            return match;
         });
+    }
+
+
+    @FXML
+    private void resetFilters() {
+        searchInvNum.clear();
+        searchSerial.clear();
+        searchName.clear();
+        searchLocation.clear();
+        searchFullCode.clear();
+        searchType.setValue(null);
+        searchCategory.setValue(null);
+        searchEmployee.setValue(null);
+        sortFieldCombo.setValue(null);
+        onlyFreeCheck.setSelected(false);
+        onlyBundledCheck.setSelected(false);
+        equipmentTable.getSortOrder().clear();
+        sortAscRadio.setSelected(true);
     }
 
 
@@ -199,5 +368,22 @@ public class EquipmentViewController {
                 "Вывод из комплекта",
                 param -> new RemoveFromBundleViewController(selectedItem)
         );
+    }
+
+    @FXML
+    private void toggleFilterMenu() {
+        double panelWidth = 370;
+        double targetX = filtersVisible ? panelWidth : 0;
+
+        Interpolator smoothInterpolator = Interpolator.SPLINE(0.25, 0.1, 0.25, 1.0);
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.millis(250),
+                        new KeyValue(slidingPanel.translateXProperty(), targetX, smoothInterpolator))
+        );
+
+        timeline.play();
+        filtersVisible = !filtersVisible;
+        toggleMenuBtn.setText(filtersVisible ? "▶" : "◀");
     }
 }

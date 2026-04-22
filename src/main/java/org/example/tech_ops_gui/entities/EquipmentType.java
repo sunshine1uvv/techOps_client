@@ -2,6 +2,8 @@ package org.example.tech_ops_gui.entities;
 
 import javafx.beans.property.*;
 
+import java.util.Objects;
+
 public class EquipmentType {
     private SimpleLongProperty id= new SimpleLongProperty();
     private ObjectProperty<EquipmentType> parent = new SimpleObjectProperty<EquipmentType>();
@@ -65,6 +67,19 @@ public class EquipmentType {
     }
     public String getFullCode() {
         return this.fullCode.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EquipmentType that = (EquipmentType) o;
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }
 

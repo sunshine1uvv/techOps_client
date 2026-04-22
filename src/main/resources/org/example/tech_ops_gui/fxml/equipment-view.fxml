@@ -1,72 +1,162 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
-<?import org.controlsfx.control.textfield.CustomTextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.SearchableComboBox?>
 
-<VBox spacing="15" stylesheets="@../css/equipment-view.css" xmlns="http://javafx.com" xmlns:fx="http://javafx.com" fx:controller="org.example.tech_ops_gui.controllers.EquipmentViewController">
+<StackPane stylesheets="@../css/equipment-view.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.tech_ops_gui.controllers.EquipmentViewController">
 
-    <padding>
-        <Insets bottom="20" left="20" right="20" top="20" />
-    </padding>
+    <VBox spacing="15" StackPane.alignment="TOP_LEFT">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+        </padding>
 
-    <HBox alignment="CENTER_LEFT" spacing="15">
-        <Label style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Учет оборудования" />
-        <Region HBox.hgrow="ALWAYS" />
-
-        <CustomTextField fx:id="searchField"
-                         promptText="Поиск"
-                         prefWidth="450.0"
-                         styleClass="search-field">
-            <left>
-                <StackPane style="-fx-padding: 0 10 0 10;">
-                    <ImageView fitWidth="14.0" preserveRatio="true">
-                        <Image url="@../icons/search.png" />
-                    </ImageView>
-                </StackPane>
-            </left>
-        </CustomTextField>
-
-        <Region HBox.hgrow="ALWAYS" />
-
-        <HBox alignment="CENTER_RIGHT" spacing="10">
-            <Button onAction="#handleRefreshClick" style="-fx-background-color: #ECF0F1; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 8;">
-                <graphic>
-                    <ImageView fitWidth="18.0" preserveRatio="true">
-                        <Image url="@../icons/refresh.png" />
-                    </ImageView>
-                </graphic>
-                <tooltip><Tooltip text="Обновить данные" /></tooltip>
-            </Button>
-
-            <Button fx:id="addEquipmentBtn"
-                    onAction="#handleAddClick"
-                    style="-fx-background-color: #2ECC71; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-background-radius: 5; -fx-cursor: hand;"
-                    text="+ Добавить запись" />
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <Label style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Учет оборудования" />
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+                <Button onAction="#handleRefreshClick" style="-fx-background-color: #ECF0F1; -fx-cursor: hand; -fx-padding: 8;">
+                    <graphic>
+                        <ImageView fitWidth="18.0" preserveRatio="true">
+                            <Image url="@../icons/refresh.png" />
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button fx:id="addEquipmentBtn" onAction="#handleAddClick" style="-fx-background-color: #2ECC71; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-cursor: hand;" text="+ Добавить запись" />
+            </HBox>
         </HBox>
-    </HBox>
 
-    <TableView fx:id="equipmentTable" VBox.vgrow="ALWAYS">
-        <columnResizePolicy>
-            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-        </columnResizePolicy>
-        <columns>
-            <TableColumn fx:id="invNumCol" text="Инв. №" />
-            <TableColumn fx:id="serialNumCol" text="Серийный №" />
-            <TableColumn fx:id="typeCol" text="Тип" />
-            <TableColumn fx:id="nameCol" text="Наименование" />
-            <TableColumn fx:id="locationCol" text="Локация" />
-            <TableColumn fx:id="employeeCol" text="Сотрудник" />
-            <TableColumn fx:id="categoryCol" text="Категория" />
-            <TableColumn fx:id="isBundledCol" text="В комплекте" />
-            <TableColumn fx:id="fullCodeCol" text="Код номенклатуры" />
-        </columns>
-        <placeholder>
-            <Label text="Нет оборудования"/>
-        </placeholder>
-    </TableView>
+        <TableView fx:id="equipmentTable" VBox.vgrow="ALWAYS">
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+            <columns>
+                <TableColumn fx:id="invNumCol" text="Инв. №" />
+                <TableColumn fx:id="serialNumCol" text="Серийный №" />
+                <TableColumn fx:id="typeCol" text="Тип" />
+                <TableColumn fx:id="nameCol" text="Наименование" />
+                <TableColumn fx:id="locationCol" text="Локация" />
+                <TableColumn fx:id="employeeCol" text="Сотрудник" />
+                <TableColumn fx:id="categoryCol" prefWidth="50" text="Кат." />
+                <TableColumn fx:id="isBundledCol" text="Комплект" />
+                <TableColumn fx:id="fullCodeCol" text="Код номенкл." />
+            </columns>
+            <placeholder>
+                <Label text="Оборудование по заданным параметрам не найдено"/>
+            </placeholder>
+        </TableView>
+    </VBox>
 
-</VBox>
+    <AnchorPane fx:id="slidingPanel" maxWidth="410" pickOnBounds="false" translateX="370" StackPane.alignment="CENTER_RIGHT">
+
+        <VBox fx:id="filterPanel" maxWidth="370" prefWidth="370" spacing="15" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 20, 0, -5, 0); -fx-padding: 20;" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+
+            <Label style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Фильтры поиска" />
+            <Separator />
+
+            <GridPane hgap="10" vgap="12">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="160.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="160.0" />
+                </columnConstraints>
+
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label style="-fx-font-size: 10; -fx-text-fill: #7F8C8D;" text="Инвентарный №" />
+                    <TextField fx:id="searchInvNum" promptText="ИТ..." styleClass="modern-text-field" />
+                </VBox>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label style="-fx-font-size: 10; -fx-text-fill: #7F8C8D;" text="Серийный №" />
+                    <TextField fx:id="searchSerial" promptText="SN..." styleClass="modern-text-field" />
+                </VBox>
+
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <Label style="-fx-font-size: 10; -fx-text-fill: #7F8C8D;" text="Наименование" />
+                    <TextField fx:id="searchName" promptText="Модель..." styleClass="modern-text-field" />
+                </VBox>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <Label style="-fx-font-size: 10; -fx-text-fill: #7F8C8D;" text="Тип оборудования" />
+                    <SearchableComboBox fx:id="searchType" promptText="Выберите тип" styleClass="searchable-combo-box" />
+                </VBox>
+
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="2">
+                    <Label style="-fx-font-size: 10; -fx-text-fill: #7F8C8D;" text="Код номенкл." />
+                    <TextField fx:id="searchFullCode" promptText="Код..." styleClass="modern-text-field" />
+                </VBox>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <Label style="-fx-font-size: 10; -fx-text-fill: #7F8C8D;" text="Категория" />
+                    <ComboBox fx:id="searchCategory" maxWidth="Infinity" promptText="Выберите категорию" styleClass="modern-combo-box" />
+                </VBox>
+
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="3">
+                    <Label style="-fx-font-size: 10; -fx-text-fill: #7F8C8D;" text="Сотрудник" />
+                    <SearchableComboBox fx:id="searchEmployee" promptText="Выберите сотрудника" styleClass="searchable-combo-box" />
+                </VBox>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="3">
+                    <Label style="-fx-font-size: 10; -fx-text-fill: #7F8C8D;" text="Локация" />
+                    <TextField fx:id="searchLocation" promptText="Кабинет, склад..." styleClass="modern-text-field" />
+                </VBox>
+                <rowConstraints>
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
+                </rowConstraints>
+            </GridPane>
+
+            <Separator />
+
+            <Label style="-fx-font-weight: bold;" text="Сортировать по:" />
+            <VBox spacing="8">
+                <HBox spacing="10">
+                    <ComboBox fx:id="sortFieldCombo" maxWidth="Infinity" promptText="Выберите поле" styleClass="modern-combo-box" HBox.hgrow="ALWAYS" />
+                </HBox>
+                <HBox spacing="15">
+                    <RadioButton fx:id="sortAscRadio" selected="true" text="По возрастанию">
+                        <toggleGroup>
+                            <ToggleGroup fx:id="sortDirectionGroup" />
+                        </toggleGroup>
+                    </RadioButton>
+                    <RadioButton fx:id="sortDescRadio" text="По убыванию" toggleGroup="$sortDirectionGroup" />
+                </HBox>
+                <Button maxWidth="Infinity" style="-fx-font-size: 11;" text="Применить сортировку" onAction="#applySorting" />
+            </VBox>
+
+            <Separator />
+
+            <VBox spacing="10">
+                <CheckBox fx:id="onlyFreeCheck" text="Только свободное" />
+                <CheckBox fx:id="onlyBundledCheck" text="Только в комплектах" />
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <Button maxWidth="Infinity" onAction="#resetFilters" style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12; -fx-cursor: hand;" text="Сбросить фильтры" />
+        </VBox>
+
+        <VBox alignment="CENTER" pickOnBounds="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="370" AnchorPane.topAnchor="0">
+
+            <Button fx:id="toggleMenuBtn" onAction="#toggleFilterMenu" pickOnBounds="true" prefHeight="70.0" prefWidth="12.0" style="-fx-background-color: #34495E; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 25 6; -fx-font-size: 14px; -fx-background-radius: 15 0 0 15; -fx-cursor: hand;" text="◀" />
+        </VBox>
+
+    </AnchorPane>
+
+</StackPane>

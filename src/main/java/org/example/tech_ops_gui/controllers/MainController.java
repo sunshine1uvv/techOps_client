@@ -124,15 +124,12 @@ public class MainController {
 
     private void loadView(String fxmlPath) {
         try {
-            if (currentController instanceof Cleanable) {
-                ((Cleanable) currentController).cleanup();
-            }
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node node = loader.load();
             currentController = loader.getController();
             contentArea.getChildren().setAll(node);
-        } catch (IOException e) {
-            CustomExceptionHandler.handleError(e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

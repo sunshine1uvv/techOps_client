@@ -24,8 +24,6 @@ public class EquipmentTypeRepository {
 
     private void loadEquipmentTypesFromServer() {
         service.getAllTypes().thenAccept(list -> {
-            System.out.println("Загружено типов оборудования: " + list.size());
-            list.forEach(t -> System.out.println("Уровень: " + t.getLevel() + ", Название: " + t.getName()));
             Platform.runLater(() -> equipmentTypesList.setAll(list));
         }).exceptionally(ex -> {
             ex.printStackTrace();

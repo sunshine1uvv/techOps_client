@@ -5,7 +5,28 @@
 .table-row-cell:empty .table-cell {
 -fx-border-width: 0px;
 }
+.field-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #34495E;
+    -fx-font-size: 12px;
+}
 
+
+.modern-text-field,
+
+.modern-combo-box {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #DCDDE1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+}
+
+.modern-text-field:focused {
+    -fx-border-color: #3498DB;
+    -fx-background-color: white;
+}
 
 .search-field {
     -fx-background-color: white;
@@ -31,5 +52,26 @@
 
 .search-field {
     -fx-background-insets: 0;
+}
+
+.searchable-combo-box {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.searchable-combo-box > .combo-box {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #DCDDE1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4 4;
+    -fx-font-size: 14px;
+}
+
+
+.searchable-combo-box > .combo-box:focused {
+    -fx-border-color: #3498DB;
+    -fx-background-color: white;
 }
 
