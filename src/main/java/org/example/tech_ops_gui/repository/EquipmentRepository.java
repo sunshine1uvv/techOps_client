@@ -3,15 +3,16 @@ package org.example.tech_ops_gui.repository;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.stage.Stage;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.exceptions.CustomExceptionHandler;
 import org.example.tech_ops_gui.services.EquipmentService;
 import org.example.tech_ops_gui.synchronization.EquipmentSyncMessage;
 import org.example.tech_ops_gui.synchronization.WebSocketSyncClient;
-import org.example.tech_ops_gui.utils.WindowManager;
 
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class EquipmentRepository {
 
@@ -24,16 +25,14 @@ public class EquipmentRepository {
         syncClient.subscribeEquipment(this::handleSyncMessage);
     }
 
-    public static EquipmentRepository getInstance() {
+    public static synchronized EquipmentRepository getInstance() {
         if (instance == null) instance = new EquipmentRepository();
         return instance;
     }
 
-    public void initData() {
-        loadEquipmentFromServer();
-    }
+    public void initData() { refresh(); }
 
-    private void loadEquipmentFromServer() {
+    public void refresh() {
         service.getAllEquipment().thenAccept(list ->
                 Platform.runLater(() -> equipmentList.setAll(list))
         );
@@ -43,40 +42,55 @@ public class EquipmentRepository {
         return equipmentList;
     }
 
-    public void refresh() {
-        loadEquipmentFromServer();
+    public void save(EquipmentDto equipment) {
+        service.saveEquipment(equipment).exceptionally(ex -> {
+            CustomExceptionHandler.handleError(ex);
+            return null;
+        });
     }
 
-    public void save(EquipmentDto equipment) {
-        service.saveEquipment(equipment)
-                .exceptionally(ex -> {
-                    CustomExceptionHandler.handleError(ex);
-                    return null;
-                });
+    public CompletableFuture<Void> saveBatch(List<EquipmentDto> batch) {
+        return service.saveEquipmentBatch(batch);
     }
 
     public void delete(Long id) {
-        service.deleteEquipment(id)
-                .exceptionally(ex -> {
-                    CustomExceptionHandler.handleError(ex);
-                    return null;
-                });
+        service.deleteEquipment(id).exceptionally(ex -> {
+            CustomExceptionHandler.handleError(ex);
+            return null;
+        });
     }
 
     public void detach(Long id) {
-        service.detachEquipment(id)
-                .exceptionally(ex -> {
-                    CustomExceptionHandler.handleError(ex);
-                    return null;
-                });
+        service.detachEquipment(id).exceptionally(ex -> {
+            CustomExceptionHandler.handleError(ex);
+            return null;
+        });
     }
 
     public void attach(Long parentId, Long childId) {
-        service.attachEquipment(parentId, childId)
-                .exceptionally(ex -> {
-                    CustomExceptionHandler.handleError(ex);
-                    return null;
-                });
+        service.attachEquipment(parentId, childId).exceptionally(ex -> {
+            CustomExceptionHandler.handleError(ex);
+            return null;
+        });
+    }
+
+
+    public Set<String> findAllInventoryNumbers() {
+        return equipmentList.stream()
+                .map(EquipmentDto::getInventoryNumber)
+                .filter(s -> s != null && !s.isEmpty())
+                .collect(Collectors.toSet());
+    }
+
+    public Set<String> findAllSerialNumbers() {
+        return equipmentList.stream()
+                .map(EquipmentDto::getSerialNumber)
+                .filter(s -> s != null && !s.isEmpty())
+                .collect(Collectors.toSet());
+    }
+
+    public CompletableFuture<List<String>> getNextAvailableInventoryNumbers(int count) {
+        return service.getNextAvailableNumbers(count);
     }
 
     private void handleSyncMessage(EquipmentSyncMessage message) {
@@ -105,10 +119,4 @@ public class EquipmentRepository {
             }
         });
     }
-
-//    public void cleanup() {
-//        syncClient.unsubscribeEquipment(this::handleSyncMessage);
-//    }
-
-
 }

@@ -130,8 +130,14 @@ public class EditViewController {
             }
         }
 
+        EquipmentDto equipment = getEquipmentDto(selectedType, selectedUser);
+        equipmentRepository.save(equipment);
+    }
+
+    private EquipmentDto getEquipmentDto(EquipmentType selectedType, UserDto selectedUser) {
         EquipmentDto equipment = new EquipmentDto();
         equipment.setId(selectedItem.getId());
+        equipment.setParent(selectedItem.getParent());
         equipment.setInventoryNumber(invNumField.getText());
         equipment.setSerialNumber(serialNumField.getText());
         equipment.setName(nameField.getText());
@@ -139,7 +145,7 @@ public class EditViewController {
         equipment.setCategory(Integer.parseInt(categoryCombo.getValue()));
         equipment.setLocation(locationField.getText());
         equipment.setEmployee(selectedUser);
-        equipmentRepository.save(equipment);
+        return equipment;
     }
 
     @FXML

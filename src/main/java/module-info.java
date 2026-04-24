@@ -11,6 +11,7 @@ module org.example.tech_ops_gui {
     requires com.fasterxml.jackson.datatype.jsr310;
     requires com.fasterxml.jackson.databind;
     requires java.naming;
+    requires spring.context;
     requires org.yaml.snakeyaml;
 
     opens org.example.tech_ops_gui to javafx.fxml;

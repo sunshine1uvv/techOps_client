@@ -51,6 +51,10 @@ public class WebSocketSyncClient {
         SockJsClient sockJsClient = new SockJsClient(transports);
 
         stompClient = new WebSocketStompClient(sockJsClient);
+
+        stompClient.setInboundMessageSizeLimit(1024 * 1024);
+        stompClient.setTaskScheduler(new org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler());
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         MappingJackson2MessageConverter messageConverter = new MappingJackson2MessageConverter();
@@ -78,14 +82,26 @@ public class WebSocketSyncClient {
 
             @Override
             public void handleTransportError(StompSession session, Throwable exception) {
-                System.err.println("Потеряно соединение с сервером. Попытка переподключения через 5 секунд...");
+                System.err.println("--- ТРАНСПОРТНАЯ ОШИБКА ---");
+                exception.printStackTrace(); // Это покажет полный StackTrace в консоли
+
+                if (exception.getMessage() != null && exception.getMessage().contains("limit")) {
+                    System.err.println("ПОДТВЕРЖДЕНО: Превышен лимит размера сообщения!");
+                }
+
                 isConnecting = false;
                 scheduleReconnect();
             }
 
             @Override
             public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload, Throwable exception) {
-                System.err.println("Ошибка STOMP: " + exception.getMessage());
+                System.err.println("--- STOMP ИСКЛЮЧЕНИЕ ---");
+                System.err.println("Команда: " + command);
+                System.err.println("Заголовки: " + headers);
+                if (payload != null) {
+                    System.err.println("Payload length: " + payload.length);
+                }
+                exception.printStackTrace();
             }
         };
 

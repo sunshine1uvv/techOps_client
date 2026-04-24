@@ -11,7 +11,8 @@ public class EquipmentService {
     private final ApiClient apiClient = ApiClient.getInstance();
     private static final EquipmentService INSTANCE = new EquipmentService();
 
-    private EquipmentService() {}
+    private EquipmentService() {
+    }
 
     public static EquipmentService getInstance() {
         return INSTANCE;
@@ -77,6 +78,16 @@ public class EquipmentService {
         });
     }
 
+    public CompletableFuture<Void> saveEquipmentBatch(List<EquipmentDto> batch) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                apiClient.postVoid("/equipment/batch", batch);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     private List<EquipmentDto> fetchList(String path) {
         try {
             EquipmentDto[] arr = apiClient.get(path, EquipmentDto[].class);
@@ -84,5 +95,17 @@ public class EquipmentService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public CompletableFuture<List<String>> getNextAvailableNumbers(int count) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String url = "/equipment/next-numbers?count=" + count;   // ← правильно
+                String[] arr = apiClient.get(url, String[].class);
+                return Arrays.asList(arr);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

@@ -58,7 +58,7 @@
                 <TableColumn fx:id="employeeCol" text="Сотрудник" />
                 <TableColumn fx:id="categoryCol" prefWidth="50" text="Кат." />
                 <TableColumn fx:id="isBundledCol" text="Комплект" />
-                <TableColumn fx:id="fullCodeCol" text="Код номенкл." />
+                <TableColumn fx:id="fullCodeCol" text="Код номенклатуры" />
             </columns>
             <placeholder>
                 <Label text="Оборудование по заданным параметрам не найдено"/>
