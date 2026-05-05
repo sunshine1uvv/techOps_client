@@ -1,7 +1,6 @@
 package org.example.tech_ops_gui.controllers.crud;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,42 +9,36 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
 import org.controlsfx.control.SearchableComboBox;
+import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.dto.UserDto;
-import org.example.tech_ops_gui.entities.EquipmentType;
+import org.example.tech_ops_gui.dto.EquipmentTypeDto;
 import org.example.tech_ops_gui.exceptions.CustomExceptionHandler;
 import org.example.tech_ops_gui.repository.EquipmentRepository;
 import org.example.tech_ops_gui.repository.EquipmentTypeRepository;
-import org.example.tech_ops_gui.services.UserService;
+import org.example.tech_ops_gui.utils.EquipmentValidator;
+import org.example.tech_ops_gui.utils.FormatUtil;
+import org.example.tech_ops_gui.utils.NotificationManager;
 import org.example.tech_ops_gui.utils.WindowManager;
 
 import java.util.List;
 
 public class EditViewController {
 
-    @FXML
-    private Label sideInvNumLabel;
-    @FXML
-    private TextField invNumField;
-    @FXML
-    private TextField serialNumField;
-    @FXML
-    private TextField nameField;
-    @FXML
-    private TextField locationField;
-    @FXML
-    private TextField employeeField;
-    @FXML
-    private SearchableComboBox<EquipmentType> typeCombo;
-    @FXML
-    private SearchableComboBox<String> employeeCombo;
-    @FXML
-    private ComboBox<String> categoryCombo;
+    @FXML private Label sideInvNumLabel;
+    @FXML private TextField invNumField;
+    @FXML private TextField serialNumField;
+    @FXML private TextField nameField;
+    @FXML private TextField locationField;
+
+    // ВАЖНО: Изменен тип SearchableComboBox на UserDto, как в AddViewController
+    @FXML private SearchableComboBox<EquipmentTypeDto> typeCombo;
+    @FXML private SearchableComboBox<UserDto> employeeCombo;
+    @FXML private ComboBox<String> categoryCombo;
+
     private final EquipmentDto selectedItem;
-    private final EquipmentTypeRepository typeRepository = EquipmentTypeRepository.getInstance();
-    private final EquipmentRepository equipmentRepository = EquipmentRepository.getInstance();
-    private final UserService userService = UserService.getInstance();
-    private List<UserDto> allUsers;
+    private final EquipmentTypeRepository typeRepository = AppContext.getEquipmentTypeRepository();
+    private final EquipmentRepository equipmentRepository = AppContext.getEquipmentRepository();
 
     public EditViewController(EquipmentDto selectedItem) {
         this.selectedItem = selectedItem;
@@ -53,111 +46,104 @@ public class EditViewController {
 
     @FXML
     public void initialize() {
+        setupCategoryCombo();
         setupTypeCombo();
         setupEmployeeCombo();
         fillFieldsWithData();
     }
 
+    private void setupCategoryCombo() {
+        categoryCombo.getItems().addAll("1", "2", "3", "4", "5");
+    }
 
     private void setupTypeCombo() {
-        ObservableList<EquipmentType> allTypes = typeRepository.getEquipmentTypesList();
-        FilteredList<EquipmentType> level6Types = new FilteredList<>(allTypes);
+        FilteredList<EquipmentTypeDto> level6Types = new FilteredList<>(typeRepository.getEquipmentTypesList());
         level6Types.setPredicate(type -> type.getLevel() != null && type.getLevel() == 6);
 
         typeCombo.setItems(level6Types);
-        typeCombo.setConverter(new StringConverter<EquipmentType>() {
-            @Override
-            public String toString(EquipmentType type) {
-                return type == null ? "" : type.getName();
-            }
-            @Override
-            public EquipmentType fromString(String string) {
-                return null; // не используется
-            }
+        typeCombo.setConverter(new StringConverter<>() {
+            @Override public String toString(EquipmentTypeDto type) { return type == null ? "" : type.getName(); }
+            @Override public EquipmentTypeDto fromString(String string) { return null; }
         });
-
-        if (selectedItem != null && selectedItem.getType() != null) {
-            EquipmentType currentType = selectedItem.getType();
-            if (currentType.getLevel() != null && currentType.getLevel() == 6) {
-                typeCombo.setValue(currentType);
-            } else {
-                typeCombo.setValue(null);
-            }
-        }
     }
 
     private void setupEmployeeCombo() {
-        userService.getAllUsers().thenAccept(users -> Platform.runLater(() -> {
-            allUsers = users;
-            for (UserDto user : users) {
-                String fullName = buildFullName(user);
-                employeeCombo.getItems().add(fullName);
-            }
-            if (selectedItem != null && selectedItem.getEmployee() != null) {
-                UserDto emp = selectedItem.getEmployee();
-                String currentFullName = buildFullName(emp);
-                employeeCombo.setValue(currentFullName);
-            }
-        })).exceptionally(ex -> {
-            CustomExceptionHandler.handleError(ex);
-            return null;
+        // Теперь мы берем пользователей синхронно из репозитория, а не делаем лишний запрос к API
+        employeeCombo.setItems(AppContext.getUserRepository().getUserList());
+        employeeCombo.setConverter(new StringConverter<>() {
+            @Override public String toString(UserDto user) { return user == null ? "" : FormatUtil.buildFullName(user); }
+            @Override public UserDto fromString(String string) { return null; }
         });
     }
 
     private void fillFieldsWithData() {
         if (selectedItem == null) return;
+
         invNumField.setText(selectedItem.getInventoryNumber());
         serialNumField.setText(selectedItem.getSerialNumber());
         nameField.setText(selectedItem.getName());
         locationField.setText(selectedItem.getLocation());
         sideInvNumLabel.setText(selectedItem.getInventoryNumber() != null ? selectedItem.getInventoryNumber() : "Новая запись");
+
         if (selectedItem.getCategory() != null) {
             categoryCombo.setValue(String.valueOf(selectedItem.getCategory()));
+        }
+
+        if (selectedItem.getType() != null && selectedItem.getType().getLevel() != null && selectedItem.getType().getLevel() == 6) {
+            typeCombo.setValue(selectedItem.getType());
+        }
+
+        if (selectedItem.getEmployee() != null) {
+            // Ищем точный объект сотрудника в списке, чтобы ComboBox его корректно выбрал
+            Long empId = selectedItem.getEmployee().getId();
+            employeeCombo.getItems().stream()
+                    .filter(u -> u.getId().equals(empId))
+                    .findFirst()
+                    .ifPresent(u -> employeeCombo.setValue(u));
         }
     }
 
     @FXML
     private void handleEditClick(ActionEvent event) {
-        EquipmentType selectedType = typeCombo.getValue();
-        UserDto selectedUser = null;
-        String selectedFullName = employeeCombo.getValue();
-        if (selectedFullName != null && !selectedFullName.isBlank()) {
-            for (UserDto user : allUsers) {
-                if (buildFullName(user).equals(selectedFullName)) {
-                    selectedUser = user;
-                    break;
-                }
-            }
+        EquipmentDto dto = buildEquipmentDtoFromForm();
+
+        List<String> errors = EquipmentValidator.validate(dto);
+        if (!errors.isEmpty()) {
+            NotificationManager.showError("Ошибка заполнения", String.join("\n", errors));
+            return;
         }
 
-        EquipmentDto equipment = getEquipmentDto(selectedType, selectedUser);
-        equipmentRepository.save(equipment);
+        equipmentRepository.save(dto)
+                .thenRun(() -> Platform.runLater(() -> {
+                    NotificationManager.showInfo("Успех", "Запись успешно обновлена.");
+                    WindowManager.close(event); // Закрываем окно только при успехе!
+                }))
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> CustomExceptionHandler.handleError(ex));
+                    return null; // Не закрываем окно при ошибке сервера
+                });
     }
 
-    private EquipmentDto getEquipmentDto(EquipmentType selectedType, UserDto selectedUser) {
+    private EquipmentDto buildEquipmentDtoFromForm() {
         EquipmentDto equipment = new EquipmentDto();
         equipment.setId(selectedItem.getId());
         equipment.setParent(selectedItem.getParent());
-        equipment.setInventoryNumber(invNumField.getText());
-        equipment.setSerialNumber(serialNumField.getText());
-        equipment.setName(nameField.getText());
-        equipment.setType(selectedType);
-        equipment.setCategory(Integer.parseInt(categoryCombo.getValue()));
-        equipment.setLocation(locationField.getText());
-        equipment.setEmployee(selectedUser);
+        equipment.setInventoryNumber(getSafeText(invNumField) != null ? getSafeText(invNumField).toUpperCase() : null);
+        equipment.setSerialNumber(getSafeText(serialNumField));
+        equipment.setName(getSafeText(nameField));
+        equipment.setType(typeCombo.getValue());
+        equipment.setCategory(categoryCombo.getValue() != null ? Integer.parseInt(categoryCombo.getValue()) : null);
+        equipment.setLocation(getSafeText(locationField));
+        equipment.setEmployee(employeeCombo.getValue()); // Теперь тут сразу берется объект UserDto
         return equipment;
+    }
+
+    private String getSafeText(TextField field) {
+        return (field == null || field.getText() == null || field.getText().trim().isEmpty()) ? null : field.getText().trim();
     }
 
     @FXML
     private void handleCloseClick(ActionEvent event) {
         WindowManager.close(event);
     }
-
-    private String buildFullName(UserDto user) {
-        return String.format("%s %s %s",
-                user.getSurname(),
-                user.getName(),
-                user.getPatronymic() != null ? user.getPatronymic() : "").trim();
-    }
-
 }

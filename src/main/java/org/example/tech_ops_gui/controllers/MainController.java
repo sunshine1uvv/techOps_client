@@ -13,17 +13,15 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.UserDto;
-import org.example.tech_ops_gui.entities.User;
-import org.example.tech_ops_gui.entities.UserStatus;
+import org.example.tech_ops_gui.enums.UserRole;
+import org.example.tech_ops_gui.enums.UserStatus;
 import org.example.tech_ops_gui.exceptions.CustomExceptionHandler;
 import org.example.tech_ops_gui.repository.UserRepository;
 import org.example.tech_ops_gui.utils.Cleanable;
-import org.example.tech_ops_gui.utils.SessionManager;
 
-import java.io.IOException;
-
-public class MainController {
+public class MainController implements Cleanable {
 
     @FXML
     private StackPane contentArea;
@@ -35,24 +33,27 @@ public class MainController {
     private BorderPane rootPane;
 
     private Object currentController;
-    private String currentRole;
-    private final UserRepository userRepository = UserRepository.getInstance();
+    private UserRole currentRole;
+
+    private final UserRepository userRepository = AppContext.getUserRepository();
+
+    private final ListChangeListener<UserDto> userListListener = change -> checkCurrentUserStatus();
 
 
     @FXML
     private void initialize() {
-        currentRole = SessionManager.getInstance().getRole();
-        registrationRequestsViewBtn.setVisible("SUPERADMIN".equals(currentRole));
-        usersViewBtn.setVisible("SUPERADMIN".equals(currentRole));
-        userRepository.getUserList().addListener((ListChangeListener<UserDto>) change ->
-                checkCurrentUserStatus()
-        );
+        currentRole = AppContext.getSessionManager().getRole();
+        registrationRequestsViewBtn.setVisible(currentRole == UserRole.SUPERADMIN);
+        usersViewBtn.setVisible(currentRole == UserRole.SUPERADMIN);
+
+        userRepository.getUserList().addListener(userListListener);
+
         checkCurrentUserStatus();
         loadEquipmentView();
     }
 
     private void checkCurrentUserStatus() {
-        String currentUsername = SessionManager.getInstance().getUsername();
+        String currentUsername = AppContext.getSessionManager().getUsername();
         if (currentUsername == null) return;
 
         if(userRepository.getUserList().isEmpty()) {
@@ -91,13 +92,13 @@ public class MainController {
 
     @FXML
     private void loadRegistrationRequestView() {
-        if (!"SUPERADMIN".equals(currentRole)) return;
+        if (UserRole.SUPERADMIN != currentRole) return;
         loadView("/org/example/tech_ops_gui/fxml/admin/registration-requests-view.fxml");
     }
 
     @FXML
     private void loadUsersView() {
-        if (!"SUPERADMIN".equals(currentRole)) return;
+        if (UserRole.SUPERADMIN != currentRole) return;
         loadView("/org/example/tech_ops_gui/fxml/users/user-management-view.fxml");
     }
 
@@ -109,7 +110,12 @@ public class MainController {
     @FXML
     private void logout() {
         try {
-            SessionManager.getInstance().clear();
+            this.cleanup();
+            if (currentController instanceof Cleanable) {
+                ((Cleanable) currentController).cleanup();
+            }
+
+            AppContext.getSessionManager().clear();
             Stage stage = (Stage) rootPane.getScene().getWindow();
             stage.close();
             Parent root = FXMLLoader.load(getClass().getResource("/org/example/tech_ops_gui/fxml/auth/login-view.fxml"));
@@ -124,12 +130,22 @@ public class MainController {
 
     private void loadView(String fxmlPath) {
         try {
+            if (currentController instanceof Cleanable) {
+                ((Cleanable) currentController).cleanup();
+            }
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node node = loader.load();
             currentController = loader.getController();
             contentArea.getChildren().setAll(node);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void cleanup() {
+        if (userRepository != null && userListListener != null) {
+            userRepository.getUserList().removeListener(userListListener);
         }
     }
 }

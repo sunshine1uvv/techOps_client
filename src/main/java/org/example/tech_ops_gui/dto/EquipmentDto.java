@@ -3,12 +3,11 @@ package org.example.tech_ops_gui.dto;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import org.example.tech_ops_gui.entities.EquipmentType;
 
 public class EquipmentDto {
     private ObjectProperty<Long> id= new SimpleObjectProperty<>();
     private ObjectProperty<EquipmentDto> parent= new SimpleObjectProperty<EquipmentDto>();
-    private ObjectProperty<EquipmentType> type = new SimpleObjectProperty<EquipmentType>();
+    private ObjectProperty<EquipmentTypeDto> type = new SimpleObjectProperty<EquipmentTypeDto>();
     private SimpleStringProperty name = new SimpleStringProperty();
     private SimpleStringProperty inventoryNumber = new SimpleStringProperty();
     private SimpleStringProperty serialNumber= new SimpleStringProperty();
@@ -22,7 +21,7 @@ public class EquipmentDto {
     public ObjectProperty<EquipmentDto> getParentProperty() {
         return this.parent;
     }
-    public ObjectProperty<EquipmentType> getTypeProperty() {
+    public ObjectProperty<EquipmentTypeDto> getTypeProperty() {
         return this.type;
     }
     public SimpleStringProperty getNameProperty() {
@@ -52,7 +51,7 @@ public class EquipmentDto {
     public void setParent(EquipmentDto parent) {
         this.parent.set(parent);
     }
-    public void setType(EquipmentType type) {
+    public void setType(EquipmentTypeDto type) {
         this.type.set(type);
     }
     public void setName(String name) {
@@ -80,7 +79,7 @@ public class EquipmentDto {
     public EquipmentDto getParent() {
         return this.parent.get();
     }
-    public EquipmentType getType() {
+    public EquipmentTypeDto getType() {
         return this.type.get();
     }
     public String getName() {

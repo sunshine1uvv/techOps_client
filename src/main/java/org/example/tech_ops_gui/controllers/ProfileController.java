@@ -10,13 +10,13 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.dto.UserDto;
-import org.example.tech_ops_gui.entities.UserRole;
-import org.example.tech_ops_gui.entities.UserStatus;
+import org.example.tech_ops_gui.enums.UserRole;
+import org.example.tech_ops_gui.enums.UserStatus;
 import org.example.tech_ops_gui.repository.EquipmentRepository;
 import org.example.tech_ops_gui.repository.UserRepository;
-import org.example.tech_ops_gui.services.UserService;
 import org.example.tech_ops_gui.utils.SessionManager;
 
 import java.time.format.DateTimeFormatter;
@@ -64,8 +64,8 @@ public class ProfileController {
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
-    private final UserRepository userRepository = UserRepository.getInstance();
-    private final EquipmentRepository equipmentRepository = EquipmentRepository.getInstance();
+    private final UserRepository userRepository = AppContext.getUserRepository();
+    private final EquipmentRepository equipmentRepository = AppContext.getEquipmentRepository();
 
     private UserDto currentUser;
     private FilteredList<EquipmentDto> userEquipmentFiltered;
@@ -122,11 +122,8 @@ public class ProfileController {
     }
 
     private void loadUserAndEquipment() {
-        String currentUsername = SessionManager.getInstance().getUsername();
-        if (currentUsername == null || currentUsername.isBlank()) {
-            System.err.println("Имя пользователя не найдено в сессии");
-            return;
-        }
+        String currentUsername = AppContext.getSessionManager().getUsername();
+        if (currentUsername == null || currentUsername.isBlank()) return;
         Platform.runLater(() -> {
             UserDto user = userRepository.getUserList().stream()
                     .filter(u -> u.getUsername().equals(currentUsername))

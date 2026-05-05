@@ -8,118 +8,67 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.stage.Stage;
+import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.repository.EquipmentRepository;
+import org.example.tech_ops_gui.utils.Cleanable;
+import org.example.tech_ops_gui.utils.EquipmentHierarchyUtil;
 
-public class BundleViewController {
+public class BundleViewController implements Cleanable {
 
-    @FXML
-    private TreeTableView<EquipmentDto> bundleTreeTable;
-    @FXML
-    private TreeTableColumn<EquipmentDto, String> nameCol;
-    @FXML
-    private TreeTableColumn<EquipmentDto, String> invNumCol;
-    @FXML
-    private TreeTableColumn<EquipmentDto, String> typeCol;
-    @FXML
-    private TreeTableColumn<EquipmentDto, String> serNumCol;
+    @FXML private TreeTableView<EquipmentDto> bundleTreeTable;
+    @FXML private TreeTableColumn<EquipmentDto, String> nameCol, invNumCol, typeCol, serNumCol;
 
     private final EquipmentDto selectedItem;
-    private final EquipmentRepository equipmentRepository = EquipmentRepository.getInstance();
-
+    private final EquipmentRepository equipmentRepository = AppContext.getEquipmentRepository();
     private FilteredList<EquipmentDto> childrenOfRoot;
+
     private final ListChangeListener<EquipmentDto> dataChangeListener = this::handleDataChange;
 
-    public BundleViewController(EquipmentDto selectedItem) {
-        this.selectedItem = selectedItem;
-    }
+    public BundleViewController(EquipmentDto selectedItem) { this.selectedItem = selectedItem; }
 
     @FXML
     private void initialize() {
         configureColumns();
         configureRows();
-
         Long rootId = getRootId();
 
-        // Фильтрованный список только дочерних элементов корня
         childrenOfRoot = new FilteredList<>(equipmentRepository.getEquipmentList());
         childrenOfRoot.setPredicate(e -> e.getParent() != null && e.getParent().getId().equals(rootId));
 
-        // Слушаем изменения в основном списке
         equipmentRepository.getEquipmentList().addListener(dataChangeListener);
-
-        // Первоначальное построение дерева
         rebuildTree();
-
         Platform.runLater(this::setupWindowCloseListener);
     }
 
-    private Long getRootId() {
-        return (selectedItem.getParent() != null) ? selectedItem.getParent().getId() : selectedItem.getId();
-    }
+    private Long getRootId() { return (selectedItem.getParent() != null) ? selectedItem.getParent().getId() : selectedItem.getId(); }
 
-    /**
-     * Проверяет, относится ли изменение оборудования к нашему комплекту.
-     */
-    private boolean isRelevant(EquipmentDto equipment, Long rootId) {
-        if (equipment == null) return false;
-        // Это сам корень
-        if (equipment.getId().equals(rootId)) return true;
-        // Это прямой потомок корня
-        return equipment.getParent() != null && equipment.getParent().getId().equals(rootId);
-    }
-
-    /**
-     * Обработчик изменений в общем списке оборудования.
-     * Перестраивает дерево только если изменения затрагивают наш комплект.
-     */
     private void handleDataChange(ListChangeListener.Change<? extends EquipmentDto> change) {
         Long rootId = getRootId();
         boolean relevant = false;
 
         while (change.next()) {
-            if (change.wasAdded()) {
-                relevant = change.getAddedSubList().stream().anyMatch(e -> isRelevant(e, rootId));
-            }
-            if (change.wasRemoved()) {
-                relevant = change.getRemoved().stream().anyMatch(e -> isRelevant(e, rootId));
-            }
+            if (change.wasAdded()) relevant = change.getAddedSubList().stream().anyMatch(e -> EquipmentHierarchyUtil.isRelevantForBundle(e, rootId));
+            if (change.wasRemoved()) relevant = change.getRemoved().stream().anyMatch(e -> EquipmentHierarchyUtil.isRelevantForBundle(e, rootId));
             if (change.wasUpdated() || change.wasReplaced()) {
                 for (int i = change.getFrom(); i < change.getTo(); i++) {
-                    if (isRelevant(change.getList().get(i), rootId)) {
-                        relevant = true;
-                        break;
-                    }
+                    if (EquipmentHierarchyUtil.isRelevantForBundle(change.getList().get(i), rootId)) { relevant = true; break; }
                 }
             }
             if (relevant) break;
         }
-
-        if (relevant) {
-            Platform.runLater(this::rebuildTree);
-        }
+        if (relevant) Platform.runLater(this::rebuildTree);
     }
 
     private void rebuildTree() {
         Long rootId = getRootId();
+        EquipmentDto rootEquipment = equipmentRepository.getEquipmentList().stream().filter(e -> e.getId().equals(rootId)).findFirst().orElse(null);
 
-        // Находим актуальный корневой объект (он мог измениться)
-        EquipmentDto rootEquipment = equipmentRepository.getEquipmentList().stream()
-                .filter(e -> e.getId().equals(rootId))
-                .findFirst()
-                .orElse(null);
-
-        if (rootEquipment == null) {
-            bundleTreeTable.setRoot(null);
-            return;
-        }
+        if (rootEquipment == null) { bundleTreeTable.setRoot(null); return; }
 
         TreeItem<EquipmentDto> rootNode = new TreeItem<>(rootEquipment);
         rootNode.setExpanded(true);
-
-        // Заполняем дочерние элементы из отфильтрованного списка
         childrenOfRoot.forEach(e -> rootNode.getChildren().add(new TreeItem<>(e)));
-
         bundleTreeTable.setRoot(rootNode);
     }
 
@@ -131,15 +80,13 @@ public class BundleViewController {
     }
 
     private void configureRows() {
-        bundleTreeTable.setRowFactory(tv -> new javafx.scene.control.TreeTableRow<EquipmentDto>() {
+        bundleTreeTable.setRowFactory(tv -> new javafx.scene.control.TreeTableRow<>() {
             @Override
             protected void updateItem(EquipmentDto item, boolean empty) {
                 super.updateItem(item, empty);
                 getStyleClass().remove("root-equipment-row");
-                if (!empty && item != null) {
-                    if (getTreeItem() != null && getTreeItem().getParent() == null) {
-                        getStyleClass().add("root-equipment-row");
-                    }
+                if (!empty && item != null && getTreeItem() != null && getTreeItem().getParent() == null) {
+                    getStyleClass().add("root-equipment-row");
                 }
             }
         });
@@ -148,9 +95,13 @@ public class BundleViewController {
     private void setupWindowCloseListener() {
         if (bundleTreeTable.getScene() != null && bundleTreeTable.getScene().getWindow() != null) {
             Stage stage = (Stage) bundleTreeTable.getScene().getWindow();
-            stage.setOnHidden(event -> {
-                equipmentRepository.getEquipmentList().removeListener(dataChangeListener);
-            });
+            stage.setOnHidden(event -> equipmentRepository.getEquipmentList().removeListener(dataChangeListener));
         }
+    }
+
+    @Override
+    public void cleanup() {
+        equipmentRepository.getEquipmentList().removeListener(dataChangeListener);
+        bundleTreeTable.setRoot(null);
     }
 }

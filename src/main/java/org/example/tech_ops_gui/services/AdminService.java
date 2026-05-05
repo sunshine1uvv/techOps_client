@@ -8,7 +8,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AdminService {
-    private final ApiClient apiClient = ApiClient.getInstance();
+    private final ApiClient apiClient;
+
+    public AdminService(ApiClient apiClient) {
+        this.apiClient=apiClient;
+    }
 
     public List<RequestResponseDto> getAllRequests() {
         try {

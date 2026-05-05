@@ -1,5 +1,6 @@
 package org.example.tech_ops_gui.controllers.bundles;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -7,11 +8,16 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.stage.Stage;
 import org.controlsfx.control.textfield.CustomTextField;
+import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.EquipmentDto;
+import org.example.tech_ops_gui.exceptions.CustomExceptionHandler;
 import org.example.tech_ops_gui.repository.EquipmentRepository;
+import org.example.tech_ops_gui.utils.EquipmentHierarchyUtil;
+import org.example.tech_ops_gui.utils.NotificationManager;
 
-public class AddInBundleViewController {
+public class AttachToBundleViewController {
 
     @FXML
     private TableView<EquipmentDto> equipmentTable;
@@ -26,11 +32,11 @@ public class AddInBundleViewController {
     @FXML
     private CustomTextField searchField;
 
-    private final EquipmentRepository equipmentRepository = EquipmentRepository.getInstance();
+    private final EquipmentRepository equipmentRepository = AppContext.getEquipmentRepository();
     private FilteredList<EquipmentDto> filteredData;
     private final EquipmentDto selectedItem;
 
-    public AddInBundleViewController(EquipmentDto selectedItem) {
+    public AttachToBundleViewController(EquipmentDto selectedItem) {
         this.selectedItem = selectedItem;
     }
 
@@ -41,7 +47,9 @@ public class AddInBundleViewController {
         SortedList<EquipmentDto> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(equipmentTable.comparatorProperty());
         equipmentTable.setItems(sortedData);
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> updateFilter(newVal));
+        searchField.textProperty().addListener((obs, oldVal, newVal) ->
+                filteredData.setPredicate(EquipmentHierarchyUtil.buildAddInBundlePredicate(selectedItem, newVal))
+        );
     }
 
     private void configureTableColumns() {
@@ -63,7 +71,16 @@ public class AddInBundleViewController {
     }
 
     private void handleSelection(EquipmentDto parent) {
-        equipmentRepository.attach(parent.getId(), selectedItem.getId());
+        equipmentRepository.attach(parent.getId(), selectedItem.getId())
+                .thenRun(() -> Platform.runLater(() -> {
+                    NotificationManager.showInfo("Успех", "Оборудование успешно добавлено в комплект.");
+                    Stage stage = (Stage) equipmentTable.getScene().getWindow();
+                    stage.close();
+                }))
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> CustomExceptionHandler.handleError(ex));
+                    return null;
+                });
     }
 
     private boolean isRootEquipment(EquipmentDto equipment) {

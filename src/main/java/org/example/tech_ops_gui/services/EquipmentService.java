@@ -8,14 +8,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class EquipmentService {
-    private final ApiClient apiClient = ApiClient.getInstance();
-    private static final EquipmentService INSTANCE = new EquipmentService();
+    private final ApiClient apiClient;
 
-    private EquipmentService() {
-    }
-
-    public static EquipmentService getInstance() {
-        return INSTANCE;
+    public EquipmentService(ApiClient apiClient) {
+        this.apiClient = apiClient;
     }
 
     public CompletableFuture<List<EquipmentDto>> getAllEquipment() {

@@ -12,18 +12,14 @@ import java.util.List;
 
 public class UserRepository {
 
-    private static UserRepository instance;
     private final ObservableList<UserDto> userList = FXCollections.observableArrayList();
-    private final WebSocketSyncClient syncClient = WebSocketSyncClient.getInstance();
-    private final UserService service = UserService.getInstance();
+    private final UserService service;
+    private final WebSocketSyncClient syncClient;
 
-    private UserRepository() {
-        syncClient.subscribeUsers(this::handleSyncMessage);
-    }
-
-    public static UserRepository getInstance() {
-        if (instance == null) instance = new UserRepository();
-        return instance;
+    public UserRepository(UserService service, WebSocketSyncClient syncClient) {
+        this.service = service;
+        this.syncClient = syncClient;
+        this.syncClient.subscribeUsers(this::handleSyncMessage);
     }
 
     public void initData() {

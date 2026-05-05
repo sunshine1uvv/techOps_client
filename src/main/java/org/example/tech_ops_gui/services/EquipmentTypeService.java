@@ -2,19 +2,23 @@ package org.example.tech_ops_gui.services;
 
 
 import org.example.tech_ops_gui.api.ApiClient;
-import org.example.tech_ops_gui.entities.EquipmentType;
+import org.example.tech_ops_gui.dto.EquipmentTypeDto;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class EquipmentTypeService {
-    private final ApiClient apiClient = ApiClient.getInstance();
+    private final ApiClient apiClient;
 
-    public CompletableFuture<List<EquipmentType>> getAllTypes() {
+    public EquipmentTypeService(ApiClient apiClient) {
+        this.apiClient = apiClient;
+    }
+
+    public CompletableFuture<List<EquipmentTypeDto>> getAllTypes() {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                EquipmentType[] arr = apiClient.get("/equipment/types", EquipmentType[].class);
+                EquipmentTypeDto[] arr = apiClient.get("/equipment/types", EquipmentTypeDto[].class);
                 return Arrays.asList(arr);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -22,10 +26,10 @@ public class EquipmentTypeService {
         });
     }
 
-    public CompletableFuture<List<EquipmentType>> getAllByLevel(Integer level) {
+    public CompletableFuture<List<EquipmentTypeDto>> getAllByLevel(Integer level) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                EquipmentType[] arr = apiClient.get("/equipment/types/level/" + level, EquipmentType[].class);
+                EquipmentTypeDto[] arr = apiClient.get("/equipment/types/level/" + level, EquipmentTypeDto[].class);
                 return Arrays.asList(arr);
             } catch (Exception e) {
                 throw new RuntimeException(e);

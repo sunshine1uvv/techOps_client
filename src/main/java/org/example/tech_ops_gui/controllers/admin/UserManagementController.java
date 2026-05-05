@@ -8,10 +8,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
+import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.UserDto;
-import org.example.tech_ops_gui.entities.User;
-import org.example.tech_ops_gui.entities.UserRole;
-import org.example.tech_ops_gui.entities.UserStatus;
+import org.example.tech_ops_gui.enums.UserRole;
+import org.example.tech_ops_gui.enums.UserStatus;
 import org.example.tech_ops_gui.services.UserService;
 import org.example.tech_ops_gui.synchronization.UserSyncMessage;
 import org.example.tech_ops_gui.synchronization.WebSocketSyncClient;
@@ -27,9 +27,9 @@ public class UserManagementController implements Cleanable {
     private TilePane userCardsContainer;
     private Stage currentStage;
 
-    private final UserService userService = UserService.getInstance();
+    private final UserService userService = AppContext.getUserService();
     private final ObservableList<UserDto> userList = FXCollections.observableArrayList();;
-    private final WebSocketSyncClient syncService = WebSocketSyncClient.getInstance();
+    private final WebSocketSyncClient syncService = AppContext.getWebSocketClient();
     private final Consumer<UserSyncMessage> usersHandler = this::handleUserSyncMessage;
 
     @FXML

@@ -4,8 +4,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import org.example.tech_ops_gui.entities.UserRole;
-import org.example.tech_ops_gui.entities.UserStatus;
+import org.example.tech_ops_gui.enums.UserRole;
+import org.example.tech_ops_gui.enums.UserStatus;
 
 import java.time.LocalDateTime;
 import java.util.Objects;

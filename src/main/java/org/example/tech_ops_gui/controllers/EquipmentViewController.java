@@ -4,7 +4,6 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -17,15 +16,16 @@ import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import org.controlsfx.control.SearchableComboBox;
-import org.example.tech_ops_gui.controllers.bundles.AddInBundleViewController;
+import org.example.tech_ops_gui.config.AppContext;
+import org.example.tech_ops_gui.controllers.bundles.AttachToBundleViewController;
 import org.example.tech_ops_gui.controllers.bundles.BundleViewController;
-import org.example.tech_ops_gui.controllers.bundles.RemoveFromBundleViewController;
+import org.example.tech_ops_gui.controllers.bundles.DetachFromBundleViewController;
 import org.example.tech_ops_gui.controllers.crud.DeleteViewController;
 import org.example.tech_ops_gui.controllers.crud.EditViewController;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.dto.UserDto;
-import org.example.tech_ops_gui.entities.EquipmentType;
-import org.example.tech_ops_gui.exceptions.CustomExceptionHandler;
+import org.example.tech_ops_gui.dto.EquipmentTypeDto;
+import org.example.tech_ops_gui.enums.UserRole;
 import org.example.tech_ops_gui.repository.EquipmentRepository;
 import org.example.tech_ops_gui.repository.EquipmentTypeRepository;
 import org.example.tech_ops_gui.repository.UserRepository;
@@ -68,7 +68,7 @@ public class EquipmentViewController {
     @FXML private TextField searchInvNum;
     @FXML private TextField searchSerial;
     @FXML private TextField searchName;
-    @FXML private SearchableComboBox<EquipmentType> searchType;
+    @FXML private SearchableComboBox<EquipmentTypeDto> searchType;
     @FXML private TextField searchFullCode;
     @FXML private ComboBox<Integer> searchCategory;
     @FXML private SearchableComboBox<UserDto> searchEmployee;
@@ -86,13 +86,14 @@ public class EquipmentViewController {
 
     private FilteredList<EquipmentDto> filteredData;
 
-    private final EquipmentRepository repository = EquipmentRepository.getInstance();
+    private final EquipmentRepository repository = AppContext.getEquipmentRepository();
 
 
     @FXML
     private void initialize() {
         configureTableColumns();
-        addEquipmentBtn.setVisible("ADMIN".equals(SessionManager.getInstance().getRole()) || "SUPERADMIN".equals(SessionManager.getInstance().getRole()));
+        UserRole role = AppContext.getSessionManager().getRole();
+        addEquipmentBtn.setVisible(role == UserRole.ADMIN || role == UserRole.SUPERADMIN);
         ObservableList<EquipmentDto> source = repository.getEquipmentList();
         filteredData = new FilteredList<>(source, p -> true);
         SortedList<EquipmentDto> sortedData = new SortedList<>(filteredData);
@@ -105,8 +106,21 @@ public class EquipmentViewController {
 
     private void initFilterComponents() {
         searchCategory.setItems(FXCollections.observableArrayList(1, 2, 3, 4, 5));
-        setupTypeCombo();
-        searchEmployee.setItems(UserRepository.getInstance().getUserList());
+        FilteredList<EquipmentTypeDto> level6Types = new FilteredList<>(AppContext.getEquipmentTypeRepository().getEquipmentTypesList());
+        level6Types.setPredicate(type -> type.getLevel() != null && type.getLevel() == 6);
+        searchType.setItems(level6Types);
+        searchType.setConverter(new StringConverter<EquipmentTypeDto>() {
+            @Override
+            public String toString(EquipmentTypeDto type) {
+                return type == null ? "" : type.getName();
+            }
+
+            @Override
+            public EquipmentTypeDto fromString(String string) {
+                return null;
+            }
+        });
+        searchEmployee.setItems(AppContext.getUserRepository().getUserList());
     }
 
     private void initSortControls() {
@@ -121,23 +135,6 @@ public class EquipmentViewController {
                 "Код номенклатуры"
         );
         sortFieldCombo.setItems(sortFields);
-    }
-
-    private void setupTypeCombo() {
-        FilteredList<EquipmentType> level6Types = new FilteredList<>(EquipmentTypeRepository.getInstance().getEquipmentTypesList());
-        level6Types.setPredicate(type -> type.getLevel() != null && type.getLevel() == 6);
-        searchType.setItems(level6Types);
-        searchType.setConverter(new StringConverter<EquipmentType>() {
-            @Override
-            public String toString(EquipmentType type) {
-                return type == null ? "" : type.getName();
-            }
-
-            @Override
-            public EquipmentType fromString(String string) {
-                return null;
-            }
-        });
     }
 
 
@@ -273,9 +270,9 @@ public class EquipmentViewController {
             TableRow<EquipmentDto> row = new TableRow<>();
             Runnable buildContextMenu = () -> {
                 EquipmentDto item = row.getItem();
-                String role = SessionManager.getInstance().getRole();
-                boolean isAdmin = "ADMIN".equals(role) || "SUPERADMIN".equals(role);
-                boolean isUser = "USER".equals(role);
+                UserRole role = AppContext.getSessionManager().getRole();
+                boolean isAdmin = role == UserRole.ADMIN || role == UserRole.SUPERADMIN;
+                boolean isUser = role == UserRole.USER;
                 List<MenuItem> menuItems = new ArrayList<>();
                 if (item != null) {
                     MenuItem viewBundleItem = new MenuItem("Посмотреть комплект");
@@ -358,7 +355,7 @@ public class EquipmentViewController {
         WindowManager.openModalWindow(
                 "bundles/equipment-add-in-bundle-view.fxml",
                 "Ввод в комплект",
-                param -> new AddInBundleViewController(selectedItem)
+                param -> new AttachToBundleViewController(selectedItem)
         );
     }
 
@@ -366,7 +363,7 @@ public class EquipmentViewController {
         WindowManager.openModalWindow(
                 "bundles/equipment-remove-from-bundle-view.fxml",
                 "Вывод из комплекта",
-                param -> new RemoveFromBundleViewController(selectedItem)
+                param -> new DetachFromBundleViewController(selectedItem)
         );
     }
 

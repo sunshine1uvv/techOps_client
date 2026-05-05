@@ -3,35 +3,32 @@ package org.example.tech_ops_gui.repository;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.example.tech_ops_gui.entities.EquipmentType;
+import org.example.tech_ops_gui.dto.EquipmentTypeDto;
 import org.example.tech_ops_gui.services.EquipmentTypeService;
 
 public class EquipmentTypeRepository {
 
-    private static EquipmentTypeRepository instance;
+    private final ObservableList<EquipmentTypeDto> equipmentTypesList = FXCollections.observableArrayList();
+    private final EquipmentTypeService service;
 
-    private final EquipmentTypeService service = new EquipmentTypeService();
-    private final ObservableList<EquipmentType> equipmentTypesList = FXCollections.observableArrayList();
-
-    private EquipmentTypeRepository() {
-        loadEquipmentTypesFromServer();
+    public EquipmentTypeRepository(EquipmentTypeService service) {
+        this.service = service;
     }
 
-    public static EquipmentTypeRepository getInstance() {
-        if (instance == null) instance = new EquipmentTypeRepository();
-        return instance;
+    public void initData() {
+        refresh();
     }
 
-    private void loadEquipmentTypesFromServer() {
-        service.getAllTypes().thenAccept(list -> {
-            Platform.runLater(() -> equipmentTypesList.setAll(list));
-        }).exceptionally(ex -> {
+    public void refresh() {
+        service.getAllTypes().thenAccept(list ->
+                Platform.runLater(() -> equipmentTypesList.setAll(list))
+        ).exceptionally(ex -> {
             ex.printStackTrace();
             return null;
         });
     }
 
-    public ObservableList<EquipmentType> getEquipmentTypesList() {
+    public ObservableList<EquipmentTypeDto> getEquipmentTypesList() {
         return equipmentTypesList;
     }
 }

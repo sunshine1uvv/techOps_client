@@ -10,47 +10,36 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import org.controlsfx.control.SearchableComboBox;
+import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.dto.UserDto;
-import org.example.tech_ops_gui.entities.EquipmentType;
+import org.example.tech_ops_gui.dto.EquipmentTypeDto;
 import org.example.tech_ops_gui.exceptions.CustomExceptionHandler;
-import org.example.tech_ops_gui.repository.EquipmentRepository;
-import org.example.tech_ops_gui.repository.EquipmentTypeRepository;
-import org.example.tech_ops_gui.repository.UserRepository;
+import org.example.tech_ops_gui.services.EquipmentBatchService;
+import org.example.tech_ops_gui.utils.EquipmentValidator;
 import org.example.tech_ops_gui.utils.NotificationManager;
 import org.example.tech_ops_gui.utils.WindowManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.UnaryOperator;
 
 public class AddViewController {
 
-    @FXML private SearchableComboBox<EquipmentType> typeCombo;
+    @FXML private SearchableComboBox<EquipmentTypeDto> typeCombo;
     @FXML private SearchableComboBox<UserDto> employeeCombo;
     @FXML private ComboBox<String> categoryCombo;
-    @FXML private TextField invNumField;
-    @FXML private TextField serialNumField;
-    @FXML private TextField nameField;
-    @FXML private TextField locationField;
-
-    @FXML private Label invStartLabel;
-    @FXML private Label serialStartLabel;
-    @FXML private TextField invStepField;
-    @FXML private TextField serialStepField;
-    @FXML private TextField countRowsField;
+    @FXML private TextField invNumField, serialNumField, nameField, locationField;
+    @FXML private Label invStartLabel, serialStartLabel;
+    @FXML private TextField invStepField, serialStepField, countRowsField;
     @FXML private Button saveBtn;
 
-    private final EquipmentRepository equipmentRepository = EquipmentRepository.getInstance();
-    private final EquipmentTypeRepository typeRepository = EquipmentTypeRepository.getInstance();
-    private final UserRepository userRepository = UserRepository.getInstance();
+    private final EquipmentBatchService batchService = AppContext.getEquipmentBatchService();
 
     @FXML
     public void initialize() {
@@ -62,111 +51,81 @@ public class AddViewController {
         bindFieldsToQuantity();
     }
 
-    // Запрещаем ввод любых символов, кроме цифр, на уровне UI
-    private void setupNumericFilters() {
-        UnaryOperator<TextFormatter.Change> integerFilter = change -> {
-            String text = change.getControlNewText();
-            if (text.matches("\\d*")) return change;
-            return null;
-        };
-        countRowsField.setTextFormatter(new TextFormatter<>(integerFilter));
-        invStepField.setTextFormatter(new TextFormatter<>(integerFilter));
-        serialStepField.setTextFormatter(new TextFormatter<>(integerFilter));
-    }
-
-    private void setupCategoryCombo() {
-        categoryCombo.getItems().addAll("1", "2", "3", "4", "5");
-    }
-
-    private void setupTypeCombo() {
-        FilteredList<EquipmentType> level6Types = new FilteredList<>(typeRepository.getEquipmentTypesList());
-        level6Types.setPredicate(type -> type.getLevel() != null && type.getLevel() == 6);
-        typeCombo.setItems(level6Types);
-        typeCombo.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(EquipmentType type) { return type == null ? "" : type.getName(); }
-            @Override
-            public EquipmentType fromString(String string) { return null; }
-        });
-    }
-
-    private void setupEmployeeCombo() {
-        employeeCombo.setItems(userRepository.getUserList());
-        employeeCombo.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(UserDto user) { return user == null ? "" : buildFullName(user); }
-            @Override
-            public UserDto fromString(String string) { return null; }
-        });
-    }
-
-    private void setupMassAddLabels() {
-        invNumField.textProperty().addListener((obs, old, newVal) -> {
-            String val = (newVal != null && !newVal.isBlank()) ? newVal.toUpperCase() : "не указан";
-            invStartLabel.setText(val);
-        });
-        serialNumField.textProperty().addListener((obs, old, newVal) ->
-                serialStartLabel.setText(newVal != null && !newVal.isBlank() ? newVal : "не указан"));
-        invStartLabel.setText("не указан");
-        serialStartLabel.setText("не указан");
-    }
-
-    private void bindFieldsToQuantity() {
-        BooleanBinding isPositiveInt = Bindings.createBooleanBinding(() -> {
-            String text = countRowsField.getText();
-            return text != null && !text.isEmpty() && Integer.parseInt(text) > 0;
-        }, countRowsField.textProperty());
-
-        invStepField.disableProperty().bind(isPositiveInt.not().or(invNumField.textProperty().isEmpty()));
-        serialStepField.disableProperty().bind(isPositiveInt.not().or(serialNumField.textProperty().isEmpty()));
-
-        saveBtn.disableProperty().bind(
-                countRowsField.textProperty().map(text -> text != null && !text.isEmpty() && Integer.parseInt(text) <= 0)
-        );
-    }
+    // =================================================================================================
+    // 1. ОСНОВНОЙ ПАЙПЛАЙН СОХРАНЕНИЯ (ЕДИНАЯ ТОЧКА ВХОДА)
+    // =================================================================================================
 
     @FXML
     private void handleSaveClick(ActionEvent event) {
+        // Шаг 1: Собираем базовый DTO из формы
+        EquipmentDto baseDto = buildEquipmentDtoFromForm();
+
+        // Шаг 2: Проверяем базовые поля (Тип, Категория, Локация, формат начальных номеров)
+        List<String> errors = EquipmentValidator.validate(baseDto);
+        if (!errors.isEmpty()) {
+            NotificationManager.showError("Ошибка заполнения", String.join("\n", errors));
+            return;
+        }
+
+        // Шаг 3: Маршрутизация (Массовое или Одиночное)
         if (isMassAddMode()) {
-            if (validateInventoryForMassAdd() && validateSerialForMassAdd()) {
-                validateAndProcessBatch(generateFullBatch());
-            }
+            processMassAdd(baseDto);
         } else {
-            processSingleAdd();
+            processSingleAdd(baseDto);
         }
     }
 
-    private boolean isMassAddMode() {
-        String qtyText = getSafeText(countRowsField);
-        return qtyText != null && Integer.parseInt(qtyText) > 0;
-    }
+    // =================================================================================================
+    // 2. ЛОГИКА ДОБАВЛЕНИЯ
+    // =================================================================================================
 
-    private void processSingleAdd() {
-        try {
-            EquipmentDto equipment = buildEquipmentDtoFromForm();
-            equipmentRepository.save(equipment);
-            showInfo("Запись успешно добавлена.");
-            clearFields();
-        } catch (Exception e) {
-            CustomExceptionHandler.handleError(e);
+    private void processSingleAdd(EquipmentDto dto) {
+        if (batchService.hasDatabaseConflict(dto)) {
+            NotificationManager.showError("Конфликт данных", "Оборудование с таким Инвентарным или Серийным номером уже существует.");
+            return;
         }
+
+        // Ждем ответа от сервера асинхронно
+        AppContext.getEquipmentRepository().save(dto)
+                .thenRun(() -> Platform.runLater(() -> {
+                    NotificationManager.showInfo("Успех", "Запись успешно добавлена.");
+                    closeWindow(); // Закрываем окно только при успешном сохранении!
+                }))
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> CustomExceptionHandler.handleError(ex));
+                    return null; // При ошибке окно остается открытым
+                });
     }
 
-    /**
-     * Основной метод маршрутизации. Он проверяет текущую партию на свежие конфликты.
-     * Эту функцию можно вызывать повторно при серверных ошибках.
-     */
+    private void processMassAdd(EquipmentDto baseDto) {
+        String invStart = baseDto.getInventoryNumber();
+        String serialStart = baseDto.getSerialNumber();
+        int invStep = parseStep(invStepField);
+        int serialStep = parseStep(serialStepField);
+        int qty = parseQuantity();
+
+        // Проверяем, не выходит ли серия за рамки (напр. ИТ99999)
+        String massAddError = batchService.validateMassAddParams(invStart, invStep, serialStart, qty);
+        if (massAddError != null) {
+            NotificationManager.showError("Ошибка генерации", massAddError);
+            return;
+        }
+
+        // Генерируем партию
+        List<EquipmentDto> batch = batchService.generateBatch(baseDto, invStart, invStep, serialStart, serialStep, qty);
+        validateAndProcessBatch(batch);
+    }
+
+    // =================================================================================================
+    // 3. РАБОТА С ПАРТИЯМИ И КОНФЛИКТАМИ (МАССОВОЕ ДОБАВЛЕНИЕ)
+    // =================================================================================================
+
     private void validateAndProcessBatch(List<EquipmentDto> batch) {
-        Set<String> dbInvs = equipmentRepository.findAllInventoryNumbers();
-        Set<String> dbSerials = equipmentRepository.findAllSerialNumbers();
-
         List<EquipmentDto> validItems = new ArrayList<>();
         List<EquipmentDto> conflictItems = new ArrayList<>();
 
         for (EquipmentDto item : batch) {
-            boolean hasConflict = (item.getInventoryNumber() != null && dbInvs.contains(item.getInventoryNumber())) ||
-                    (item.getSerialNumber() != null && dbSerials.contains(item.getSerialNumber()));
-            if (hasConflict) conflictItems.add(item);
+            if (batchService.hasDatabaseConflict(item)) conflictItems.add(item);
             else validItems.add(item);
         }
 
@@ -182,8 +141,6 @@ public class AddViewController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/tech_ops_gui/fxml/conflict-resolver-view.fxml"));
             Parent root = loader.load();
             ConflictResolverController controller = loader.getController();
-
-            // Передаем только конфликты. Свежие сеты контроллер возьмет сам при сохранении.
             controller.setData(conflicts);
 
             Stage stage = new Stage();
@@ -195,9 +152,6 @@ public class AddViewController {
             if (controller.isConfirmed()) {
                 List<EquipmentDto> finalBatch = new ArrayList<>(valid);
                 finalBatch.addAll(controller.getResultList());
-
-                // Важно: не отправляем слепо! Снова валидируем на случай,
-                // если кто-то что-то добавил, пока окно было открыто.
                 validateAndProcessBatch(finalBatch);
             }
         } catch (IOException e) {
@@ -207,68 +161,30 @@ public class AddViewController {
 
     private void sendBatchToServer(List<EquipmentDto> batch) {
         if (batch.isEmpty()) return;
-        equipmentRepository.saveBatch(batch)
+
+        AppContext.getEquipmentRepository().saveBatch(batch)
                 .thenRun(() -> Platform.runLater(() -> {
-                    showInfo("Успешно добавлено записей: " + batch.size());
-                    clearMassAddFields();
+                    NotificationManager.showInfo("Успех", "Успешно добавлено записей: " + batch.size());
+                    closeWindow(); // Закрываем окно после успешного сохранения партии!
                 }))
                 .exceptionally(ex -> {
                     Platform.runLater(() -> {
-                        // Если сервер отклонил (например, гонка данных), уведомляем и рекурсивно проверяем
-                        NotificationManager.showError("Ошибка сохранения", "Вероятно, записи были добавлены другим пользователем. Повторная проверка...");
+                        NotificationManager.showError("Ошибка", "Вероятно, записи были добавлены другим пользователем. Проверяем заново...");
                         validateAndProcessBatch(batch);
                     });
                     return null;
                 });
     }
 
-    private boolean validateInventoryForMassAdd() {
-        String invStart = getSafeText(invNumField);
-        if (invStart == null) return true;
+    // =================================================================================================
+    // 4. ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ И ИНИЦИАЛИЗАЦИЯ
+    // =================================================================================================
 
-        invStart = invStart.toUpperCase();
-        if (!invStart.matches("^ИТ\\d{5}$")) {
-            NotificationManager.showError("Ошибка", "Инвентарный номер должен быть в формате 'ИТ' и ровно 5 цифр.");
-            return false;
+    private void closeWindow() {
+        if (saveBtn != null && saveBtn.getScene() != null) {
+            Stage stage = (Stage) saveBtn.getScene().getWindow();
+            stage.close();
         }
-
-        int step = parseStep(invStepField, 1);
-        int quantity = parseQuantity();
-        int startNum = Integer.parseInt(invStart.substring(2));
-        int lastNum = startNum + step * (quantity - 1);
-
-        if (lastNum > 99999) {
-            NotificationManager.showError("Ошибка", "Серия выходит за пределы ИТ99999. Уменьшите количество или шаг.");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validateSerialForMassAdd() {
-        String serStart = getSafeText(serialNumField);
-        if (serStart == null) return true;
-        if (!serStart.matches(".*\\d.*")) {
-            NotificationManager.showError("Ошибка", "Серийный номер должен содержать хотя бы одну цифру.");
-            return false;
-        }
-        return true;
-    }
-
-    private List<EquipmentDto> generateFullBatch() {
-        int quantity = parseQuantity();
-        String invStart = getSafeText(invNumField) != null ? getSafeText(invNumField).toUpperCase() : null;
-
-        List<String> invs = generateSequence(invStart, quantity, parseStep(invStepField, 1), this::incrementInventoryNumber);
-        List<String> serials = generateSequence(getSafeText(serialNumField), quantity, parseStep(serialStepField, 1), this::incrementSerialSuffix);
-
-        List<EquipmentDto> batch = new ArrayList<>();
-        for (int i = 0; i < quantity; i++) {
-            EquipmentDto dto = buildEquipmentDtoFromForm();
-            dto.setInventoryNumber(invs.get(i));
-            dto.setSerialNumber(serials.get(i));
-            batch.add(dto);
-        }
-        return batch;
     }
 
     private EquipmentDto buildEquipmentDtoFromForm() {
@@ -279,74 +195,77 @@ public class AddViewController {
         dto.setSerialNumber(getSafeText(serialNumField));
         dto.setLocation(getSafeText(locationField));
         dto.setEmployee(employeeCombo.getValue());
-        dto.setCategory(parseCategory());
+        dto.setCategory(categoryCombo.getValue() != null ? Integer.parseInt(categoryCombo.getValue()) : null);
         return dto;
     }
 
-    // Вспомогательные методы
-    private Integer parseCategory() {
-        return categoryCombo.getValue() != null ? Integer.parseInt(categoryCombo.getValue()) : null;
+    private boolean isMassAddMode() {
+        String qtyText = getSafeText(countRowsField);
+        return qtyText != null && Integer.parseInt(qtyText) > 0;
     }
 
-    private int parseStep(TextField field, int def) {
+    private int parseStep(TextField field) {
         String text = getSafeText(field);
-        return text != null ? Integer.parseInt(text) : def;
+        return text != null ? Integer.parseInt(text) : 1;
     }
 
-    private int parseQuantity() { return Integer.parseInt(getSafeText(countRowsField)); }
-
-    private List<String> generateSequence(String start, int count, int step, java.util.function.BiFunction<String, Integer, String> inc) {
-        List<String> res = new ArrayList<>(count);
-        String current = start;
-        for (int i = 0; i < count; i++) {
-            res.add(current);
-            if (current != null) current = inc.apply(current, step);
-        }
-        return res;
+    private int parseQuantity() {
+        return Integer.parseInt(getSafeText(countRowsField));
     }
-
-    private String incrementInventoryNumber(String invNum, int step) {
-        if (invNum == null || !invNum.matches("^ИТ\\d{5}$")) return invNum;
-        int num = Integer.parseInt(invNum.substring(2));
-        return String.format("ИТ%05d", num + step);
-    }
-
-    private String incrementSerialSuffix(String base, int step) {
-        if (base == null || base.isEmpty()) return base;
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^(.*?)(\\d+)(\\D*)$").matcher(base);
-        if (m.matches()) {
-            return m.group(1) + String.format("%0" + m.group(2).length() + "d", Integer.parseInt(m.group(2)) + step) + m.group(3);
-        }
-        return base;
-    }
-
-    private void clearMassAddFields() {
-        invStepField.setText("1");
-        serialStepField.setText("1");
-        countRowsField.clear();
-    }
-
-    private void clearFields() {
-        invNumField.clear();
-        serialNumField.clear();
-        nameField.clear();
-    }
-
-    private void showInfo(String message) {
-        Alert alert = new Alert(AlertType.INFORMATION, message);
-        alert.setHeaderText(null);
-        alert.showAndWait();
-    }
-
-    @FXML private void handleCloseClick(ActionEvent event) { WindowManager.close(event); }
 
     private String getSafeText(TextField field) {
-        if (field == null || field.getText() == null) return null;
-        String text = field.getText().trim();
-        return text.isEmpty() ? null : text;
+        return (field == null || field.getText() == null || field.getText().trim().isEmpty()) ? null : field.getText().trim();
     }
 
-    private String buildFullName(UserDto user) {
-        return String.format("%s %s %s", user.getSurname(), user.getName(), user.getPatronymic() != null ? user.getPatronymic() : "").trim();
+    private void setupNumericFilters() {
+        UnaryOperator<TextFormatter.Change> integerFilter = change -> change.getControlNewText().matches("\\d*") ? change : null;
+        countRowsField.setTextFormatter(new TextFormatter<>(integerFilter));
+        invStepField.setTextFormatter(new TextFormatter<>(integerFilter));
+        serialStepField.setTextFormatter(new TextFormatter<>(integerFilter));
+    }
+
+    private void setupCategoryCombo() {
+        categoryCombo.getItems().addAll("1", "2", "3", "4", "5");
+    }
+
+    private void setupTypeCombo() {
+        FilteredList<EquipmentTypeDto> level6Types = new FilteredList<>(AppContext.getEquipmentTypeRepository().getEquipmentTypesList());
+        level6Types.setPredicate(type -> type.getLevel() != null && type.getLevel() == 6);
+        typeCombo.setItems(level6Types);
+        typeCombo.setConverter(new StringConverter<>() {
+            @Override public String toString(EquipmentTypeDto type) { return type == null ? "" : type.getName(); }
+            @Override public EquipmentTypeDto fromString(String string) { return null; }
+        });
+    }
+
+    private void setupEmployeeCombo() {
+        employeeCombo.setItems(AppContext.getUserRepository().getUserList());
+        employeeCombo.setConverter(new StringConverter<>() {
+            @Override public String toString(UserDto u) { return u == null ? "" : u.getSurname() + " " + u.getName(); }
+            @Override public UserDto fromString(String string) { return null; }
+        });
+    }
+
+    private void setupMassAddLabels() {
+        invNumField.textProperty().addListener((obs, old, newVal) -> invStartLabel.setText((newVal != null && !newVal.isBlank()) ? newVal.toUpperCase() : "не указан"));
+        serialNumField.textProperty().addListener((obs, old, newVal) -> serialStartLabel.setText((newVal != null && !newVal.isBlank()) ? newVal : "не указан"));
+        invStartLabel.setText("не указан");
+        serialStartLabel.setText("не указан");
+    }
+
+    private void bindFieldsToQuantity() {
+        BooleanBinding isPositiveInt = Bindings.createBooleanBinding(() -> {
+            String text = countRowsField.getText();
+            return text != null && !text.isEmpty() && Integer.parseInt(text) > 0;
+        }, countRowsField.textProperty());
+
+        invStepField.disableProperty().bind(isPositiveInt.not().or(invNumField.textProperty().isEmpty()));
+        serialStepField.disableProperty().bind(isPositiveInt.not().or(serialNumField.textProperty().isEmpty()));
+        saveBtn.disableProperty().bind(countRowsField.textProperty().map(text -> text != null && !text.isEmpty() && Integer.parseInt(text) <= 0));
+    }
+
+    @FXML
+    private void handleCloseClick(ActionEvent event) {
+        WindowManager.close(event);
     }
 }

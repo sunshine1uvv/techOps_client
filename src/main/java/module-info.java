@@ -19,9 +19,9 @@ module org.example.tech_ops_gui {
     opens org.example.tech_ops_gui.controllers.crud to javafx.fxml;
     opens org.example.tech_ops_gui.controllers.auth to javafx.fxml;
     opens org.example.tech_ops_gui.controllers.bundles to javafx.fxml;
-    opens org.example.tech_ops_gui.entities to com.fasterxml.jackson.databind;
     opens org.example.tech_ops_gui.synchronization;
     exports org.example.tech_ops_gui;
     opens org.example.tech_ops_gui.controllers.admin to javafx.fxml;
     opens org.example.tech_ops_gui.dto to com.fasterxml.jackson.databind, javafx.base;
+    opens org.example.tech_ops_gui.enums to com.fasterxml.jackson.databind;
 }

@@ -34,15 +34,8 @@ public class WebSocketSyncClient {
     private final List<Consumer<EquipmentSyncMessage>> equipmentSubscribers = new CopyOnWriteArrayList<>();
 
     // Приватный конструктор (Singleton)
-    private WebSocketSyncClient() {
+    public WebSocketSyncClient() {
         initStompClient();
-    }
-
-    public static synchronized WebSocketSyncClient getInstance() {
-        if (instance == null) {
-            instance = new WebSocketSyncClient();
-        }
-        return instance;
     }
 
     private void initStompClient() {

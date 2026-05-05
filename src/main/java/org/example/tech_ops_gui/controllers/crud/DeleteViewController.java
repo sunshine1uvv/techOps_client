@@ -1,5 +1,6 @@
 package org.example.tech_ops_gui.controllers.crud;
 
+import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
@@ -7,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.repository.EquipmentRepository;
 import org.example.tech_ops_gui.utils.WindowManager;
@@ -27,7 +29,7 @@ public class DeleteViewController {
     private VBox warningContainer;
 
     private final EquipmentDto selectedItem;
-    private final EquipmentRepository equipmentRepository = EquipmentRepository.getInstance();
+    private final EquipmentRepository equipmentRepository = AppContext.getEquipmentRepository();
     private FilteredList<EquipmentDto> filteredChildren;
 
     public DeleteViewController(EquipmentDto selectedItem) {
@@ -44,9 +46,7 @@ public class DeleteViewController {
 
         childrenTable.setItems(filteredChildren);
 
-        filteredChildren.addListener((ListChangeListener<EquipmentDto>) c -> {
-            warningContainer.setVisible(!filteredChildren.isEmpty());
-        });
+        warningContainer.visibleProperty().bind(Bindings.isNotEmpty(filteredChildren));
     }
 
     private boolean isChildOfSelected(EquipmentDto equipment) {

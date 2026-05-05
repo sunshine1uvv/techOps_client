@@ -10,6 +10,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.RequestResponseDto;
 import org.example.tech_ops_gui.exceptions.CustomExceptionHandler;
 import org.example.tech_ops_gui.services.AdminService;
@@ -33,9 +34,9 @@ public class RegistrationRequestsController implements Cleanable {
     @FXML private TableColumn<RequestResponseDto, String> colPhone;
     @FXML private TableColumn<RequestResponseDto, String> colStatus;
 
-    private final AdminService adminService = new AdminService();
+    private final AdminService adminService = AppContext.getAdminService();
     private final ObservableList<RequestResponseDto> registrationRequestList = FXCollections.observableArrayList();
-    private final WebSocketSyncClient syncService = WebSocketSyncClient.getInstance();
+    private final WebSocketSyncClient syncService = AppContext.getWebSocketClient();
     private final Consumer<RequestResponseSyncMessage> requestResponseHandler = this::handleRequestResponseSyncMessage;
 
     @FXML
@@ -211,6 +212,5 @@ public class RegistrationRequestsController implements Cleanable {
     @Override
     public void cleanup() {
         syncService.unsubscribeRequests(requestResponseHandler);
-        System.out.println("RegistrationRequestsView отписался от обновлений.");
     }
 }

@@ -2,71 +2,49 @@ package org.example.tech_ops_gui.controllers.admin;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.UserDto;
-import org.example.tech_ops_gui.entities.UserRole;
-import org.example.tech_ops_gui.entities.UserStatus;
-import org.example.tech_ops_gui.utils.SessionManager;
-
+import org.example.tech_ops_gui.enums.UserRole;
+import org.example.tech_ops_gui.enums.UserStatus;
+import org.example.tech_ops_gui.utils.FormatUtil;
 
 import java.time.format.DateTimeFormatter;
 
 public class UserCardController {
 
-    @FXML private Label initialsLabel;
-    @FXML private Label militaryRankLabel;
-    @FXML private Label fullNameLabel;
-    @FXML private Label phoneLabel;
-    @FXML private Label usernameLabel;
-    @FXML private Label roleLabel;
-    @FXML private Label statusLabel;
-    @FXML private Label createdLabel;
-    @FXML private Button toggleStatusButton;
-    @FXML private Button deleteButton;
-    @FXML private Button toggleRoleButton;
+    @FXML private Label initialsLabel, militaryRankLabel, fullNameLabel, phoneLabel, usernameLabel, roleLabel, statusLabel, createdLabel;
+    @FXML private Button toggleStatusButton, deleteButton, toggleRoleButton;
 
     private UserDto user;
     private UserActionHandler actionHandler;
-
-    private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     public void setUser(UserDto user, UserActionHandler handler) {
         this.user = user;
         this.actionHandler = handler;
 
-        String currentUsername = SessionManager.getInstance().getUsername();
-        String currentRole = SessionManager.getInstance().getRole();
+        String currentUsername = AppContext.getSessionManager().getUsername();
+        UserRole currentRole = AppContext.getSessionManager().getRole();
 
-        boolean isSelfSuperAdmin = "SUPERADMIN".equals(currentRole)
-                && currentUsername != null
-                && currentUsername.equals(user.getUsername());
+        boolean isSelfSuperAdmin = currentRole == UserRole.SUPERADMIN && currentUsername != null && currentUsername.equals(user.getUsername());
         toggleStatusButton.setVisible(!isSelfSuperAdmin);
         toggleStatusButton.setManaged(!isSelfSuperAdmin);
         deleteButton.setVisible(!isSelfSuperAdmin);
         deleteButton.setManaged(!isSelfSuperAdmin);
 
         boolean targetIsSuperAdmin = user.getRole() == UserRole.SUPERADMIN;
-        boolean canChangeRole = "SUPERADMIN".equals(currentRole)
-                && !isSelfSuperAdmin
-                && !targetIsSuperAdmin;
-
+        boolean canChangeRole = currentRole == UserRole.SUPERADMIN && !isSelfSuperAdmin && !targetIsSuperAdmin;
         toggleRoleButton.setVisible(canChangeRole);
         toggleRoleButton.setManaged(canChangeRole);
 
-        String fullName = String.format("%s %s %s",
-                user.getSurname(),
-                user.getName(),
-                user.getPatronymic() != null ? user.getPatronymic() : "");
-        fullNameLabel.setText(fullName);
-
-        String initials = (user.getName().charAt(0) + "" + user.getSurname().charAt(0)).toUpperCase();
-        initialsLabel.setText(initials);
+        // Используем новую утилиту для всего форматирования!
+        fullNameLabel.setText(FormatUtil.buildFullName(user));
+        initialsLabel.setText(FormatUtil.getInitials(user));
+        phoneLabel.setText(FormatUtil.formatPhone(user.getPhoneNumber()));
+        roleLabel.setText(FormatUtil.getRoleDisplayName(user.getRole()));
 
         militaryRankLabel.setText(user.getMilitaryRank());
-        phoneLabel.setText(formatPhone(user.getPhoneNumber()));
         usernameLabel.setText("@" + user.getUsername());
-
-        roleLabel.setText(getRoleDisplayName(user.getRole()));
         roleLabel.getStyleClass().add("badge-" + user.getRole().name().toLowerCase());
 
         updateStatusDisplay();
@@ -76,7 +54,6 @@ public class UserCardController {
         }
 
         updateToggleButton();
-        System.out.println("User: " + user.getUsername() + ", role: " + user.getRole());
 
         toggleStatusButton.setOnAction(e -> handleToggleStatus());
         toggleRoleButton.setOnAction(e -> handleToggleRole());
@@ -84,12 +61,9 @@ public class UserCardController {
     }
 
     private void updateStatusDisplay() {
-        String statusText = user.getStatus() == UserStatus.ACTIVE ? "Активен" : "Заблокирован";
-        statusLabel.setText(statusText);
+        statusLabel.setText(FormatUtil.getStatusDisplayName(user.getStatus()));
         statusLabel.getStyleClass().removeAll("badge-active", "badge-blocked");
-        statusLabel.getStyleClass().add(
-                user.getStatus() == UserStatus.ACTIVE ? "badge-active" : "badge-blocked"
-        );
+        statusLabel.getStyleClass().add(user.getStatus() == UserStatus.ACTIVE ? "badge-active" : "badge-blocked");
     }
 
     private void updateToggleButton() {
@@ -102,47 +76,16 @@ public class UserCardController {
         }
     }
 
-    private String getRoleDisplayName(UserRole role) {
-        return switch (role) {
-            case ADMIN -> "Администратор";
-            case USER -> "Пользователь";
-            case SUPERADMIN -> "Главный администратор";
-        };
-    }
-
-    private String formatPhone(String phone) {
-        if (phone == null) return "";
-        String digits = phone.replaceAll("[^0-9]", "");
-        if (digits.length() == 12 && digits.startsWith("375")) {
-            return String.format("+%s (%s) %s-%s-%s",
-                    digits.substring(0, 3),
-                    digits.substring(3, 5),
-                    digits.substring(5, 8),
-                    digits.substring(8, 10),
-                    digits.substring(10));
-        }
-        return phone;
-    }
-
     private void handleToggleStatus() {
-        if (actionHandler != null) {
-            UserStatus newStatus = user.getStatus() == UserStatus.ACTIVE
-                    ? UserStatus.BLOCKED : UserStatus.ACTIVE;
-            actionHandler.onToggleStatus(user, newStatus);
-        }
+        if (actionHandler != null) actionHandler.onToggleStatus(user, user.getStatus() == UserStatus.ACTIVE ? UserStatus.BLOCKED : UserStatus.ACTIVE);
     }
 
     private void handleToggleRole() {
-        if(actionHandler != null) {
-            UserRole newRole = user.getRole() == UserRole.USER ? UserRole.ADMIN : UserRole.USER;
-            actionHandler.onToggleRole(user, newRole);
-        }
+        if(actionHandler != null) actionHandler.onToggleRole(user, user.getRole() == UserRole.USER ? UserRole.ADMIN : UserRole.USER);
     }
 
     private void handleDelete() {
-        if (actionHandler != null) {
-            actionHandler.onDelete(user);
-        }
+        if (actionHandler != null) actionHandler.onDelete(user);
     }
 
     public interface UserActionHandler {

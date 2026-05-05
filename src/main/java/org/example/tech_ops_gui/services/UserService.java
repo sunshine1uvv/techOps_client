@@ -2,9 +2,8 @@ package org.example.tech_ops_gui.services;
 
 import org.example.tech_ops_gui.api.ApiClient;
 import org.example.tech_ops_gui.dto.UserDto;
-import org.example.tech_ops_gui.entities.User;
-import org.example.tech_ops_gui.entities.UserRole;
-import org.example.tech_ops_gui.entities.UserStatus;
+import org.example.tech_ops_gui.enums.UserRole;
+import org.example.tech_ops_gui.enums.UserStatus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,13 +11,10 @@ import java.util.concurrent.CompletableFuture;
 
 public class UserService {
 
-    private final ApiClient apiClient = ApiClient.getInstance();
-    private static final UserService INSTANCE = new UserService();
+    private final ApiClient apiClient;
 
-    private UserService() {}
-
-    public static UserService getInstance() {
-        return INSTANCE;
+    public UserService(ApiClient apiClient) {
+        this.apiClient=apiClient;
     }
 
     public CompletableFuture<List<UserDto>> getAllUsers() {

@@ -6,14 +6,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.example.tech_ops_gui.synchronization.WebSocketSyncClient;
+import org.example.tech_ops_gui.config.AppContext;
 
 public class MainApplication extends Application {
 
     @Override
     public void init() {
         try {
-            WebSocketSyncClient.getInstance().connect();
+            AppContext.init();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -29,7 +29,7 @@ public class MainApplication extends Application {
 
     @Override
     public void stop() throws Exception {
-        WebSocketSyncClient.getInstance().shutdown();
+        AppContext.getWebSocketClient().shutdown();
         super.stop();
     }
 

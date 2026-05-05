@@ -6,7 +6,7 @@
 
 <VBox prefWidth="600.0" spacing="20.0" styleClass="confirm-dialog"
       stylesheets="@../../css/bundles/equipment-remove-from-bundle.css" xmlns="http://javafx.com" xmlns:fx="http://javafx.com"
-fx:controller="org.example.tech_ops_gui.controllers.bundles.RemoveFromBundleViewController">
+fx:controller="org.example.tech_ops_gui.controllers.bundles.DetachFromBundleViewController">
     <children>
         <VBox spacing="5.0">
             <children>

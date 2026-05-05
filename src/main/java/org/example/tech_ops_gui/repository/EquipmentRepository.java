@@ -16,21 +16,19 @@ import java.util.stream.Collectors;
 
 public class EquipmentRepository {
 
-    private static EquipmentRepository instance;
     private final ObservableList<EquipmentDto> equipmentList = FXCollections.observableArrayList();
-    private final WebSocketSyncClient syncClient = WebSocketSyncClient.getInstance();
-    private final EquipmentService service = EquipmentService.getInstance();
+    private final EquipmentService service;
+    private final WebSocketSyncClient syncClient;
 
-    private EquipmentRepository() {
-        syncClient.subscribeEquipment(this::handleSyncMessage);
+    public EquipmentRepository(EquipmentService service, WebSocketSyncClient syncClient) {
+        this.service = service;
+        this.syncClient = syncClient;
+        this.syncClient.subscribeEquipment(this::handleSyncMessage);
     }
 
-    public static synchronized EquipmentRepository getInstance() {
-        if (instance == null) instance = new EquipmentRepository();
-        return instance;
+    public void initData() {
+        refresh();
     }
-
-    public void initData() { refresh(); }
 
     public void refresh() {
         service.getAllEquipment().thenAccept(list ->
@@ -42,36 +40,24 @@ public class EquipmentRepository {
         return equipmentList;
     }
 
-    public void save(EquipmentDto equipment) {
-        service.saveEquipment(equipment).exceptionally(ex -> {
-            CustomExceptionHandler.handleError(ex);
-            return null;
-        });
+    public CompletableFuture<Void> save(EquipmentDto equipment) {
+        return service.saveEquipment(equipment);
     }
 
     public CompletableFuture<Void> saveBatch(List<EquipmentDto> batch) {
         return service.saveEquipmentBatch(batch);
     }
 
-    public void delete(Long id) {
-        service.deleteEquipment(id).exceptionally(ex -> {
-            CustomExceptionHandler.handleError(ex);
-            return null;
-        });
+    public CompletableFuture<Void> delete(Long id) {
+        return service.deleteEquipment(id);
     }
 
-    public void detach(Long id) {
-        service.detachEquipment(id).exceptionally(ex -> {
-            CustomExceptionHandler.handleError(ex);
-            return null;
-        });
+    public CompletableFuture<Void> detach(Long id) {
+        return service.detachEquipment(id);
     }
 
-    public void attach(Long parentId, Long childId) {
-        service.attachEquipment(parentId, childId).exceptionally(ex -> {
-            CustomExceptionHandler.handleError(ex);
-            return null;
-        });
+    public CompletableFuture<Void> attach(Long parentId, Long childId) {
+        return service.attachEquipment(parentId, childId);
     }
 
 

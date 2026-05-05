@@ -1,12 +1,12 @@
-package org.example.tech_ops_gui.entities;
+package org.example.tech_ops_gui.dto;
 
 import javafx.beans.property.*;
 
 import java.util.Objects;
 
-public class EquipmentType {
+public class EquipmentTypeDto {
     private SimpleLongProperty id= new SimpleLongProperty();
-    private ObjectProperty<EquipmentType> parent = new SimpleObjectProperty<EquipmentType>();
+    private ObjectProperty<EquipmentTypeDto> parent = new SimpleObjectProperty<EquipmentTypeDto>();
     private SimpleStringProperty name= new SimpleStringProperty();
     private SimpleIntegerProperty level= new SimpleIntegerProperty();
     private SimpleStringProperty code= new SimpleStringProperty();
@@ -15,7 +15,7 @@ public class EquipmentType {
     public SimpleLongProperty getIdProperty() {
         return this.id;
     }
-    public ObjectProperty<EquipmentType> getParentProperty() {
+    public ObjectProperty<EquipmentTypeDto> getParentProperty() {
         return this.parent;
     }
     public SimpleStringProperty getNameProperty() {
@@ -34,7 +34,7 @@ public class EquipmentType {
     public void setId(Long id) {
         this.id.set(id);
     }
-    public void setParent(EquipmentType parent) {
+    public void setParent(EquipmentTypeDto parent) {
         this.parent.set(parent);
     }
     public void setName(String name) {
@@ -53,7 +53,7 @@ public class EquipmentType {
     public Long getId() {
         return this.id.get();
     }
-    public EquipmentType getParent() {
+    public EquipmentTypeDto getParent() {
         return this.parent.get();
     }
     public String getName() {
@@ -73,7 +73,7 @@ public class EquipmentType {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        EquipmentType that = (EquipmentType) o;
+        EquipmentTypeDto that = (EquipmentTypeDto) o;
         return Objects.equals(getId(), that.getId());
     }
 

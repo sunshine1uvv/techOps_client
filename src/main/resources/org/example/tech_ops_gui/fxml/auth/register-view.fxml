@@ -35,7 +35,7 @@
         <TextField fx:id="patronymicField" GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="modern-text-field"/>
 
         <Label text="Воинское звание" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="field-label"/>
-        <TextField fx:id="militaryRankField" GridPane.rowIndex="5" GridPane.columnIndex="1" styleClass="modern-text-field"/>
+        <ComboBox fx:id="militaryRankCombo" GridPane.rowIndex="5" GridPane.columnIndex="1" maxWidth="Infinity" styleClass="modern-combo-box" promptText="Выберите звание"/>
 
         <Label text="Телефон" GridPane.rowIndex="6" GridPane.columnIndex="0" styleClass="field-label"/>
         <TextField fx:id="phoneField" GridPane.rowIndex="6" GridPane.columnIndex="1" styleClass="modern-text-field"/>

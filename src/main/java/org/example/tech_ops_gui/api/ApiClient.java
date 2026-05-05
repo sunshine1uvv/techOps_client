@@ -11,22 +11,14 @@ import java.net.http.HttpResponse;
 
 public class ApiClient {
 
-    private static ApiClient instance;
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private String jwtToken;
 
-    private ApiClient() {
+    public ApiClient() {
         this.httpClient = HttpClient.newHttpClient();
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-    }
-
-    public static ApiClient getInstance() {
-        if (instance == null) {
-            instance = new ApiClient();
-        }
-        return instance;
     }
 
     public void setJwtToken(String token) {
