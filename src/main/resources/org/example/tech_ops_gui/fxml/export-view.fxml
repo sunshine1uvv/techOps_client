@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15.0" prefWidth="500.0" prefHeight="450.0" style="-fx-background-color: #F4F7F9; -fx-font-family: 'Segoe UI', sans-serif;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.tech_ops_gui.controllers.ExportViewController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+
+    <Label text="Экспорт в Excel" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
+
+    <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);">
+        <HBox spacing="20">
+            <RadioButton fx:id="newFileRadio" text="Создать новый файл" selected="true" style="-fx-font-weight: bold; -fx-text-fill: #334155;"/>
+            <RadioButton fx:id="existingFileRadio" text="Добавить в существующий" style="-fx-font-weight: bold; -fx-text-fill: #334155;"/>
+        </HBox>
+
+        <VBox fx:id="newFileBox" spacing="5">
+            <Label text="Название сохраняемого файла (без .xlsx):" textFill="#64748B"/>
+            <TextField fx:id="newFileNameField" text="Отчет_Оборудование" style="-fx-padding: 6; -fx-background-radius: 4; -fx-border-color: #CBD5E1; -fx-border-radius: 4;"/>
+        </VBox>
+
+        <HBox fx:id="existingFileBox" spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="existingFilePathField" promptText="Путь к файлу..." HBox.hgrow="ALWAYS" editable="false" style="-fx-padding: 6; -fx-background-radius: 4; -fx-border-color: #CBD5E1; -fx-border-radius: 4;"/>
+            <Button text="Обзор..." onAction="#handleBrowseFile" style="-fx-background-color: #E2E8F0; -fx-cursor: hand; -fx-padding: 6 12;"/>
+        </HBox>
+    </VBox>
+
+    <VBox spacing="10" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);">
+        <Label text="Выберите столбцы для выгрузки:" style="-fx-font-weight: bold; -fx-text-fill: #334155;"/>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: white; -fx-border-color: transparent;">
+            <FlowPane fx:id="columnsBox" hgap="15" vgap="12">
+            </FlowPane>
+        </ScrollPane>
+    </VBox>
+
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button text="Отмена" onAction="#handleCancel" style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-cursor: hand; -fx-font-weight: bold;"/>
+        <Button text="Экспортировать" onAction="#handleExport" defaultButton="true" style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 20; -fx-background-radius: 6;"/>
+    </HBox>
+</VBox>

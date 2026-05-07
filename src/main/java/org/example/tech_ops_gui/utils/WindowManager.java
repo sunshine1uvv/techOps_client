@@ -40,6 +40,29 @@ public class WindowManager {
         }
     }
 
+    /**
+     * Открывает модальное окно, ждет его закрытия и возвращает его контроллер.
+     * Идеально подходит для окон, где нужно получить ответ пользователя (например, настройки экспорта).
+     */
+    public static <T> T openModalAndWait(String fxmlName, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(WindowManager.class.getResource(FXML_PATH + fxmlName));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+
+            stage.showAndWait();
+
+            return loader.getController();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Ошибка загрузки FXML для диалога: " + fxmlName);
+            return null;
+        }
+    }
+
     public static void openModalWindow(String fxmlName, String title) {
         openModalWindow(fxmlName, title, null);
     }

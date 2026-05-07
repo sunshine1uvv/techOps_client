@@ -12,6 +12,7 @@ module org.example.tech_ops_gui {
     requires java.naming;
     requires spring.context;
     requires org.yaml.snakeyaml;
+    requires org.apache.poi.ooxml;
 
     opens org.example.tech_ops_gui to javafx.fxml;
     opens org.example.tech_ops_gui.controllers to javafx.fxml;

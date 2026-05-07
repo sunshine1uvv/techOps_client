@@ -34,9 +34,13 @@ import org.example.tech_ops_gui.enums.UserRole;
 import org.example.tech_ops_gui.repository.EquipmentRepository;
 import org.example.tech_ops_gui.repository.EquipmentTypeRepository;
 import org.example.tech_ops_gui.repository.UserRepository;
+import org.example.tech_ops_gui.services.ExcelExportService;
+import org.example.tech_ops_gui.utils.FileSelectionUtil;
+import org.example.tech_ops_gui.utils.NotificationManager;
 import org.example.tech_ops_gui.utils.SessionManager;
 import org.example.tech_ops_gui.utils.WindowManager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,6 +133,7 @@ public class EquipmentViewController {
 
     @FXML
     private void initialize() {
+        equipmentTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         configureTableColumns();
         UserRole role = AppContext.getSessionManager().getRole();
         addEquipmentBtn.setVisible(role == UserRole.ADMIN || role == UserRole.SUPERADMIN);
@@ -511,6 +516,10 @@ public class EquipmentViewController {
                 param -> new HoursHistoryViewController(selectedItem));
     }
 
+    private void loadExportView() {
+        WindowManager.openModalWindow("export-view.fxml", "Экспорт оборудования в Excel");
+    }
+
     @FXML
     private void toggleFilterMenu() {
         double panelWidth = 370;
@@ -526,5 +535,21 @@ public class EquipmentViewController {
         timeline.play();
         filtersVisible = !filtersVisible;
         toggleMenuBtn.setText(filtersVisible ? "▶" : "◀");
+    }
+
+    @FXML
+    private void handleExportClick() {
+        ObservableList<EquipmentDto> selectedItems = equipmentTable.getSelectionModel().getSelectedItems();
+
+        if (selectedItems.isEmpty()) {
+            NotificationManager.showError("Ошибка экспорта", "Выберите хотя бы одну строку в таблице для экспорта.");
+            return;
+        }
+
+        WindowManager.openModalWindow(
+                "export-view.fxml",
+                "Настройки экспорта",
+                param -> new ExportViewController(new ArrayList<>(selectedItems))
+        );
     }
 }
