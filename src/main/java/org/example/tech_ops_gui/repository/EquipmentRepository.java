@@ -10,6 +10,7 @@ import org.example.tech_ops_gui.services.EquipmentService;
 import org.example.tech_ops_gui.synchronization.EquipmentSyncMessage;
 import org.example.tech_ops_gui.synchronization.WebSocketSyncClient;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -96,24 +97,33 @@ public class EquipmentRepository {
         Platform.runLater(() -> {
             String action = message.getAction();
             List<EquipmentDto> items = message.getPayload();
-            if (items == null) return;
+            if (items == null || items.isEmpty()) return;
 
-            for (EquipmentDto incomingItem : items) {
-                switch (action) {
-                    case "CREATE" -> {
-                        if (equipmentList.stream().noneMatch(e -> e.getId().equals(incomingItem.getId()))) {
-                            equipmentList.add(incomingItem);
+            switch (action) {
+                case "CREATE" -> {
+                    List<EquipmentDto> toAdd = new ArrayList<>();
+                    for (EquipmentDto incoming : items) {
+                        if (equipmentList.stream().noneMatch(e -> e.getId().equals(incoming.getId()))) {
+                            toAdd.add(incoming);
                         }
                     }
-                    case "UPDATE" -> {
+                    if (!toAdd.isEmpty()) {
+                        equipmentList.addAll(toAdd); // Одно событие на весь список
+                    }
+                }
+                case "UPDATE" -> {
+                    for (EquipmentDto incoming : items) {
                         for (int i = 0; i < equipmentList.size(); i++) {
-                            if (equipmentList.get(i).getId().equals(incomingItem.getId())) {
-                                equipmentList.set(i, incomingItem);
+                            if (equipmentList.get(i).getId().equals(incoming.getId())) {
+                                equipmentList.set(i, incoming);
                                 break;
                             }
                         }
                     }
-                    case "DELETE" -> equipmentList.removeIf(item -> item.getId().equals(incomingItem.getId()));
+                }
+                case "DELETE" -> {
+                    Set<Long> idsToRemove = items.stream().map(EquipmentDto::getId).collect(Collectors.toSet());
+                    equipmentList.removeIf(item -> idsToRemove.contains(item.getId()));
                 }
             }
         });

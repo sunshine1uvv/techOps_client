@@ -43,6 +43,11 @@ public class EquipmentValidator {
             errors.add("• Категория должна быть числом от 1 до 5.");
         }
 
+        Integer maxHours = dto.getMaxOperatingHours();
+        if (maxHours != null && maxHours <= 0) {
+            errors.add("• Максимальная наработка должна быть больше 0");
+        }
+
         return errors;
     }
 }

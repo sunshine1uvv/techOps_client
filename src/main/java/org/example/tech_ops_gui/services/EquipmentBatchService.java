@@ -79,6 +79,8 @@ public class EquipmentBatchService {
         dto.setLocation(base.getLocation());
         dto.setEmployee(base.getEmployee());
         dto.setCategory(base.getCategory());
+        dto.setDepartment(base.getDepartment());
+        dto.setMaxOperatingHours(base.getMaxOperatingHours());
         return dto;
     }
 

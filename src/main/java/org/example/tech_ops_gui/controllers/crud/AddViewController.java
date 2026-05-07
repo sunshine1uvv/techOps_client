@@ -175,15 +175,19 @@ public class AddViewController {
     private void sendBatchToServer(List<EquipmentDto> batch) {
         if (batch.isEmpty()) return;
 
+        saveBtn.getScene().getRoot().setDisable(true);
+
         AppContext.getEquipmentRepository().saveBatch(batch)
                 .thenRun(() -> Platform.runLater(() -> {
                     NotificationManager.showInfo("Успех", "Успешно добавлено записей: " + batch.size());
-                    closeWindow(); // Закрываем окно после успешного сохранения партии!
+                    closeWindow();
                 }))
                 .exceptionally(ex -> {
                     Platform.runLater(() -> {
-                        NotificationManager.showError("Ошибка", "Вероятно, записи были добавлены другим пользователем. Проверяем заново...");
-                        validateAndProcessBatch(batch);
+                        saveBtn.getScene().getRoot().setDisable(false);
+                        NotificationManager.showError("Ошибка сервера", "Не удалось сохранить партию оборудования. " +
+                                "Возможно, эти инвентарные номера только что занял другой пользователь. Мы обновляем данные...");
+                        AppContext.getEquipmentRepository().refresh();
                     });
                     return null;
                 });
