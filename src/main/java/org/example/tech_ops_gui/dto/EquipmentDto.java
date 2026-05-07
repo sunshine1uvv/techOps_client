@@ -5,100 +5,163 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class EquipmentDto {
-    private ObjectProperty<Long> id= new SimpleObjectProperty<>();
-    private ObjectProperty<EquipmentDto> parent= new SimpleObjectProperty<EquipmentDto>();
+    private ObjectProperty<Long> id = new SimpleObjectProperty<>();
+    private ObjectProperty<EquipmentDto> parent = new SimpleObjectProperty<EquipmentDto>();
     private ObjectProperty<EquipmentTypeDto> type = new SimpleObjectProperty<EquipmentTypeDto>();
     private SimpleStringProperty name = new SimpleStringProperty();
     private SimpleStringProperty inventoryNumber = new SimpleStringProperty();
-    private SimpleStringProperty serialNumber= new SimpleStringProperty();
+    private SimpleStringProperty serialNumber = new SimpleStringProperty();
     private ObjectProperty<UserDto> employee = new SimpleObjectProperty<UserDto>();
-    private SimpleStringProperty location= new SimpleStringProperty();
+    private SimpleStringProperty location = new SimpleStringProperty();
     private ObjectProperty<Integer> category = new SimpleObjectProperty<>();
+    private ObjectProperty<DepartmentDto> department = new SimpleObjectProperty<>();
+    private ObjectProperty<Integer> currentOperatingHours = new SimpleObjectProperty<>();
+    private ObjectProperty<Integer> maxOperatingHours = new SimpleObjectProperty<>();
 
     public ObjectProperty<Long> getIdProperty() {
         return this.id;
     }
+
     public ObjectProperty<EquipmentDto> getParentProperty() {
         return this.parent;
     }
+
     public ObjectProperty<EquipmentTypeDto> getTypeProperty() {
         return this.type;
     }
+
     public SimpleStringProperty getNameProperty() {
         return this.name;
     }
+
     public SimpleStringProperty getInventoryNumberProperty() {
         return this.inventoryNumber;
     }
+
     public SimpleStringProperty getSerialNumberProperty() {
         return this.serialNumber;
     }
+
     public ObjectProperty<UserDto> getEmployeeProperty() {
         return this.employee;
     }
+
     public SimpleStringProperty getLocationProperty() {
         return this.location;
     }
+
     public ObjectProperty<Integer> getCategoryProperty() {
         return this.category;
     }
 
+    public ObjectProperty<DepartmentDto> getDepartmentProperty() {
+        return this.department;
+    }
+
+    public ObjectProperty<Integer> getCurrentOperatingHoursProperty() {
+        return this.currentOperatingHours;
+    }
+
+    public ObjectProperty<Integer> getMaxOperatingHoursProperty() {
+        return this.maxOperatingHours;
+    }
 
 
     public void setId(Long id) {
         this.id.set(id);
     }
+
     public void setParent(EquipmentDto parent) {
         this.parent.set(parent);
     }
+
     public void setType(EquipmentTypeDto type) {
         this.type.set(type);
     }
+
     public void setName(String name) {
         this.name.set(name);
     }
+
     public void setInventoryNumber(String inventoryNumber) {
         this.inventoryNumber.set(inventoryNumber);
     }
+
     public void setSerialNumber(String serialNumber) {
         this.serialNumber.set(serialNumber);
     }
+
     public void setEmployee(UserDto employee) {
         this.employee.set(employee);
     }
+
     public void setLocation(String location) {
         this.location.set(location);
     }
+
     public void setCategory(Integer category) {
         this.category.set(category);
     }
 
+    public void setDepartment(DepartmentDto departmentDto) {
+        this.department.set(departmentDto);
+    }
+
+    public void setCurrentOperatingHours(Integer currentOperatingHours) {
+        this.currentOperatingHours.set(currentOperatingHours);
+    }
+
+    public void setMaxOperatingHours(Integer maxOperatingHours) {
+        this.maxOperatingHours.set(maxOperatingHours);
+    }
+
+
     public Long getId() {
         return this.id.get();
     }
+
     public EquipmentDto getParent() {
         return this.parent.get();
     }
+
     public EquipmentTypeDto getType() {
         return this.type.get();
     }
+
     public String getName() {
         return this.name.get();
     }
-    public String getInventoryNumber(){
+
+    public String getInventoryNumber() {
         return this.inventoryNumber.get();
     }
-    public String getSerialNumber(){
+
+    public String getSerialNumber() {
         return this.serialNumber.get();
     }
+
     public UserDto getEmployee() {
         return this.employee.get();
     }
+
     public String getLocation() {
         return this.location.get();
     }
+
     public Integer getCategory() {
         return this.category.get();
+    }
+
+    public DepartmentDto getDepartment() {
+        return this.department.get();
+    }
+
+    public Integer getCurrentOperatingHours() {
+        return this.currentOperatingHours.get();
+    }
+
+    public Integer getMaxOperatingHours() {
+        return this.maxOperatingHours.get();
     }
 
     @Override
@@ -113,6 +176,9 @@ public class EquipmentDto {
                 ", employee=" + employee +
                 ", location=" + location +
                 ", category=" + category +
+                ", department=" + department +
+                ", currentOperatingHours=" + currentOperatingHours +
+                ", maxOperatingHours=" + maxOperatingHours +
                 '}';
     }
 }

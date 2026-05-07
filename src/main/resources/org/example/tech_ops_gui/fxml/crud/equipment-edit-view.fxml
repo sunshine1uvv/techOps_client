@@ -15,6 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.SearchableComboBox?>
 
+<?import javafx.scene.control.CheckBox?>
 <HBox prefWidth="650.0" styleClass="edit-root" stylesheets="@../../css/crud/equipment-edit-view.css"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.tech_ops_gui.controllers.crud.EditViewController"
@@ -60,22 +61,18 @@
                 <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0"/>
                 <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0"/>
             </columnConstraints>
-
             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                <Label styleClass="field-label" text="Инвентарный №"/>
+                <Label styleClass="field-label" text="Инвентарный номер"/>
                 <TextField fx:id="invNumField" styleClass="modern-text-field"/>
             </VBox>
-
             <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                <Label styleClass="field-label" text="Серийный №"/>
+                <Label styleClass="field-label" text="Серийный номер"/>
                 <TextField fx:id="serialNumField" styleClass="modern-text-field"/>
             </VBox>
-
             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                <Label styleClass="field-label" text="Тип устройства"/>
+                <Label styleClass="field-label" text="Тип оборудования"/>
                 <SearchableComboBox fx:id="typeCombo" maxWidth="Infinity" styleClass="searchable-combo-box"/>
             </VBox>
-
             <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <Label styleClass="field-label" text="Категория"/>
                 <ComboBox fx:id="categoryCombo" maxWidth="Infinity" styleClass="modern-combo-box">
@@ -90,22 +87,32 @@
                     </items>
                 </ComboBox>
             </VBox>
-
             <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="2">
-                <Label styleClass="field-label" text="Полное наименование"/>
+                <Label styleClass="field-label" text="Наименование (модель)"/>
                 <TextField fx:id="nameField" styleClass="modern-text-field"/>
             </VBox>
-
             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                <Label styleClass="field-label" text="Локация"/>
+                <Label styleClass="field-label" text="Местоположение"/>
                 <TextField fx:id="locationField" styleClass="modern-text-field"/>
             </VBox>
-
             <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
                 <Label styleClass="field-label" text="Сотрудник"/>
                 <SearchableComboBox fx:id="employeeCombo" maxWidth="Infinity" styleClass="searchable-combo-box"/>
             </VBox>
+
+            <!-- НОВЫЕ ПОЛЯ -->
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                <Label styleClass="field-label" text="Подразделение"/>
+                <SearchableComboBox fx:id="departmentCombo" maxWidth="Infinity" styleClass="searchable-combo-box"/>
+            </VBox>
+            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                <Label styleClass="field-label" text="Макс. наработка (часы)"/>
+                <TextField fx:id="maxHoursField" styleClass="modern-text-field"/>
+            </VBox>
+
             <rowConstraints>
+                <RowConstraints/>
+                <RowConstraints/>
                 <RowConstraints/>
                 <RowConstraints/>
                 <RowConstraints/>

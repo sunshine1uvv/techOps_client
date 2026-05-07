@@ -20,8 +20,11 @@ import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.controllers.bundles.AttachToBundleViewController;
 import org.example.tech_ops_gui.controllers.bundles.BundleViewController;
 import org.example.tech_ops_gui.controllers.bundles.DetachFromBundleViewController;
+import org.example.tech_ops_gui.controllers.crud.AddHoursViewController;
 import org.example.tech_ops_gui.controllers.crud.DeleteViewController;
 import org.example.tech_ops_gui.controllers.crud.EditViewController;
+import org.example.tech_ops_gui.controllers.crud.HoursHistoryViewController;
+import org.example.tech_ops_gui.dto.DepartmentDto;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.dto.UserDto;
 import org.example.tech_ops_gui.dto.EquipmentTypeDto;
@@ -50,6 +53,8 @@ public class EquipmentViewController {
     @FXML
     private TableColumn<EquipmentDto, String> locationCol;
     @FXML
+    private TableColumn<EquipmentDto, String> departmentCol;
+    @FXML
     private TableColumn<EquipmentDto, String> employeeCol;
     @FXML
     private TableColumn<EquipmentDto, Integer> categoryCol;
@@ -57,6 +62,10 @@ public class EquipmentViewController {
     private TableColumn<EquipmentDto, String> fullCodeCol;
     @FXML
     private TableColumn<EquipmentDto, String> isBundledCol;
+    @FXML
+    private TableColumn<EquipmentDto, Integer> currentHoursCol;
+    @FXML
+    private TableColumn<EquipmentDto, Integer> maxHoursCol;
     @FXML
     private Button addEquipmentBtn;
 
@@ -251,6 +260,10 @@ public class EquipmentViewController {
         typeCol.setCellValueFactory(cellData -> cellData.getValue().getType().getNameProperty());
         nameCol.setCellValueFactory(cellData -> cellData.getValue().getNameProperty());
         locationCol.setCellValueFactory(cellData -> cellData.getValue().getLocationProperty());
+        departmentCol.setCellValueFactory(cellData -> {
+            DepartmentDto dept = cellData.getValue().getDepartment();
+            return new SimpleStringProperty(dept != null && dept.getName() != null ? dept.getName() : "");
+        });
         employeeCol.setCellValueFactory(cellData -> {
             UserDto employee = cellData.getValue().getEmployee();
             return employee == null ? new SimpleStringProperty("") : employee.getSurnameProperty();
@@ -261,6 +274,8 @@ public class EquipmentViewController {
             boolean hasParent = cellData.getValue().getParent() != null;
             return new ReadOnlyStringWrapper(hasParent ? "Да" : "Нет");
         });
+        currentHoursCol.setCellValueFactory(cellData -> cellData.getValue().getCurrentOperatingHoursProperty());
+        maxHoursCol.setCellValueFactory(cellData -> cellData.getValue().getMaxOperatingHoursProperty());
         setupContextMenu();
     }
 
@@ -269,11 +284,18 @@ public class EquipmentViewController {
         equipmentTable.setRowFactory(tv -> {
             TableRow<EquipmentDto> row = new TableRow<>();
             Runnable buildContextMenu = () -> {
+
                 EquipmentDto item = row.getItem();
                 UserRole role = AppContext.getSessionManager().getRole();
+                String currentUsername = AppContext.getSessionManager().getUsername();
                 boolean isAdmin = role == UserRole.ADMIN || role == UserRole.SUPERADMIN;
                 boolean isUser = role == UserRole.USER;
+
+                boolean isOwner = item != null && item.getEmployee() != null &&
+                        item.getEmployee().getUsername().equals(currentUsername);
+
                 List<MenuItem> menuItems = new ArrayList<>();
+
                 if (item != null) {
                     MenuItem viewBundleItem = new MenuItem("Посмотреть комплект");
                     viewBundleItem.setOnAction(e -> loadEquipmentBundleView(item));
@@ -303,6 +325,21 @@ public class EquipmentViewController {
                     deleteItem.setOnAction(e -> loadEquipmentDeleteView(item));
                     menuItems.add(deleteItem);
                 }
+
+                if (item != null) {
+                    if (isAdmin || isOwner) {
+                        menuItems.add(new SeparatorMenuItem());
+
+                        MenuItem addHoursItem = new MenuItem("Добавить наработку");
+                        addHoursItem.setOnAction(e -> loadAddHoursView(item));
+                        menuItems.add(addHoursItem);
+
+                        MenuItem historyItem = new MenuItem("История наработки");
+                        historyItem.setOnAction(e -> loadHoursHistoryView(item));
+                        menuItems.add(historyItem);
+                    }
+                }
+
                 ContextMenu rowMenu = new ContextMenu();
                 rowMenu.getItems().setAll(menuItems);
                 row.setContextMenu(rowMenu);
@@ -365,6 +402,16 @@ public class EquipmentViewController {
                 "Вывод из комплекта",
                 param -> new DetachFromBundleViewController(selectedItem)
         );
+    }
+
+    private void loadAddHoursView(EquipmentDto selectedItem) {
+        WindowManager.openModalWindow("crud/add-hours-view.fxml", "Внесение наработки",
+                param -> new AddHoursViewController(selectedItem));
+    }
+
+    private void loadHoursHistoryView(EquipmentDto selectedItem) {
+        WindowManager.openModalWindow("crud/hours-history-view.fxml", "История наработок",
+                param -> new HoursHistoryViewController(selectedItem));
     }
 
     @FXML

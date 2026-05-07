@@ -2,6 +2,7 @@ package org.example.tech_ops_gui.services;
 
 import org.example.tech_ops_gui.api.ApiClient;
 import org.example.tech_ops_gui.dto.EquipmentDto;
+import org.example.tech_ops_gui.dto.OperatingHoursLogDto;
 
 import java.util.Arrays;
 import java.util.List;
@@ -78,6 +79,37 @@ public class EquipmentService {
         return CompletableFuture.runAsync(() -> {
             try {
                 apiClient.postVoid("/equipment/batch", batch);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public CompletableFuture<Void> addOperatingHours(OperatingHoursLogDto logDto) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                apiClient.postVoid("/equipment/hours", logDto);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public CompletableFuture<Void> deleteOperatingHours(Long logId) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                apiClient.delete("/equipment/hours/" + logId);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public CompletableFuture<List<OperatingHoursLogDto>> getHoursHistory(Long equipmentId) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                OperatingHoursLogDto[] arr = apiClient.get("/equipment/" + equipmentId + "/hours-history", OperatingHoursLogDto[].class);
+                return Arrays.asList(arr);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

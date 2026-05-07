@@ -54,10 +54,13 @@
                 <TableColumn fx:id="serialNumCol" text="Серийный №" />
                 <TableColumn fx:id="typeCol" text="Тип" />
                 <TableColumn fx:id="nameCol" text="Наименование" />
-                <TableColumn fx:id="locationCol" text="Локация" />
+                <TableColumn fx:id="locationCol" text="Местоположение" />
+                <TableColumn fx:id="departmentCol" text="Подразделение" prefWidth="150"/>
                 <TableColumn fx:id="employeeCol" text="Сотрудник" />
                 <TableColumn fx:id="categoryCol" prefWidth="50" text="Кат." />
                 <TableColumn fx:id="isBundledCol" text="Комплект" />
+                <TableColumn fx:id="currentHoursCol" text="Текущая наработка (ч)" prefWidth="130"/>
+                <TableColumn fx:id="maxHoursCol" text="Макс. наработка (ч)" prefWidth="130"/>
                 <TableColumn fx:id="fullCodeCol" text="Код номенклатуры" />
             </columns>
             <placeholder>

@@ -1,122 +1,127 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.SearchableComboBox?>
 
-<StackPane style="-fx-background-color: transparent;" xmlns="http://javafx.com" xmlns:fx="http://javafx.com"
-           fx:controller="org.example.tech_ops_gui.controllers.crud.AddViewController">
-    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="ALWAYS" maxWidth="550"
-                style="-fx-background-color: transparent; -fx-background-radius: 15;">
-        <VBox spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-border-radius: 15;"
-              stylesheets="@../../css/crud/equipment-add-view.css">
+<StackPane style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.tech_ops_gui.controllers.crud.AddViewController">
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxWidth="550" style="-fx-background-color: transparent; -fx-background-radius: 15;" vbarPolicy="ALWAYS">
+        <VBox spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-border-radius: 15;" stylesheets="@../../css/crud/equipment-add-view.css">
 
             <padding>
-                <Insets bottom="30.0" left="30.0" right="30.0" top="25.0"/>
+                <Insets bottom="30.0" left="30.0" right="30.0" top="25.0" />
             </padding>
 
             <VBox spacing="5">
-                <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Новое оборудование"/>
-                <Label style="-fx-font-size: 13px; -fx-text-fill: #7F8C8D;" text="Заполните данные для постановки на учет"/>
+                <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Новое оборудование" />
+                <Label style="-fx-font-size: 13px; -fx-text-fill: #7F8C8D;" text="Заполните данные для постановки на учет" />
             </VBox>
 
-            <Separator/>
+            <Separator />
 
             <GridPane hgap="20.0" vgap="15.0">
                 <columnConstraints>
-                    <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0"/>
-                    <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" />
                 </columnConstraints>
-
                 <children>
                     <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                        <Label styleClass="field-label" text="Инвентарный №"/>
-                        <TextField fx:id="invNumField" promptText="Напр: ИТ10138" styleClass="modern-text-field"/>
+                        <Label styleClass="field-label" text="Инвентарный номер" />
+                        <TextField fx:id="invNumField" promptText="ИТ10138" styleClass="modern-text-field" />
                     </VBox>
                     <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                        <Label styleClass="field-label" text="Серийный №"/>
-                        <TextField fx:id="serialNumField" promptText="S/N: ABC12345" styleClass="modern-text-field"/>
+                        <Label styleClass="field-label" text="Серийный номер" />
+                        <TextField fx:id="serialNumField" promptText="S/N: ABC12345" styleClass="modern-text-field" />
                     </VBox>
-
                     <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                        <Label styleClass="field-label" text="Тип устройства"/>
-                        <SearchableComboBox fx:id="typeCombo" maxWidth="Infinity"
-                                            styleClass="searchable-combo-box" promptText="Выберите тип"/>
+                        <Label styleClass="field-label" text="Тип оборудования" />
+                        <SearchableComboBox fx:id="typeCombo" maxWidth="Infinity" promptText="Выберите тип" styleClass="searchable-combo-box" />
                     </VBox>
                     <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <Label styleClass="field-label" text="Наименование"/>
-                        <TextField fx:id="nameField" promptText="IdeaPad Gaming 3" styleClass="modern-text-field"/>
+                        <Label styleClass="field-label" text="Наименование (модель)" />
+                        <TextField fx:id="nameField" promptText="IdeaPad Gaming 3" styleClass="modern-text-field" />
                     </VBox>
-
                     <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                        <Label styleClass="field-label" text="Категория"/>
-                        <ComboBox fx:id="categoryCombo" maxWidth="Infinity" promptText="Выберите категорию (1-5)"
-                                  styleClass="modern-combo-box"/>
+                        <Label styleClass="field-label" text="Категория" />
+                        <ComboBox fx:id="categoryCombo" maxWidth="Infinity" promptText="Категория (1-5)" styleClass="modern-combo-box" />
                     </VBox>
                     <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                        <Label styleClass="field-label" text="Локация"/>
-                        <TextField fx:id="locationField" promptText="ЦИТ / Склад" styleClass="modern-text-field"/>
+                        <Label styleClass="field-label" text="Местоположение" />
+                        <TextField fx:id="locationField" promptText="Кабинет 101" styleClass="modern-text-field" />
                     </VBox>
-
-                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3">
-                        <Label styleClass="field-label" text="Сотрудник"/>
-                        <SearchableComboBox fx:id="employeeCombo" maxWidth="Infinity" styleClass="searchable-combo-box"/>
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                        <Label styleClass="field-label" text="Сотрудник" />
+                        <SearchableComboBox fx:id="employeeCombo" maxWidth="Infinity" styleClass="searchable-combo-box" />
+                    </VBox>
+                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <Label styleClass="field-label" text="Подразделение" />
+                        <SearchableComboBox fx:id="departmentCombo" maxWidth="Infinity" promptText="Укажите подразделение" styleClass="searchable-combo-box" />
+                    </VBox>
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
+                        <Label styleClass="field-label" text="Максимальная наработка (часы)" />
+                        <TextField fx:id="maxHoursField" promptText="100" styleClass="modern-text-field" />
                     </VBox>
                 </children>
                 <rowConstraints>
-                    <RowConstraints/>
-                    <RowConstraints/>
-                    <RowConstraints/>
-                    <RowConstraints/>
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
                 </rowConstraints>
             </GridPane>
 
 
-            <TitledPane animated="false" text="Массовое добавление" expanded="false"
-                        styleClass="mass-add-pane">
+            <TitledPane animated="false" expanded="false" styleClass="mass-add-pane" text="Массовое добавление">
                 <VBox spacing="10" styleClass="mass-add-content">
                     <padding>
-                        <Insets top="10" right="10" bottom="10" left="10"/>
+                        <Insets bottom="10" left="10" right="10" top="10" />
                     </padding>
 
                     <!-- Инвентарный номер: отображается текущее значение из основного поля -->
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Нач. инв. №:" styleClass="field-label"/>
-                        <Label fx:id="invStartLabel" text="—" styleClass="mass-start-value"/>
-                        <Label text="Шаг:" styleClass="field-label"/>
-                        <TextField fx:id="invStepField" promptText="1" prefWidth="60" text="1"
-                                   styleClass="modern-text-field"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label styleClass="field-label" text="Нач. инв. №:" />
+                        <Label fx:id="invStartLabel" styleClass="mass-start-value" text="—" />
+                        <Label styleClass="field-label" text="Шаг:" />
+                        <TextField fx:id="invStepField" prefWidth="60" promptText="1" styleClass="modern-text-field" text="1" />
                     </HBox>
 
                     <!-- Серийный номер: отображается текущее значение -->
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Нач. сер. №:" styleClass="field-label"/>
-                        <Label fx:id="serialStartLabel" text="—" styleClass="mass-start-value"/>
-                        <Label text="Шаг:" styleClass="field-label"/>
-                        <TextField fx:id="serialStepField" promptText="1" prefWidth="60" text="1"
-                                   styleClass="modern-text-field"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label styleClass="field-label" text="Нач. сер. №:" />
+                        <Label fx:id="serialStartLabel" styleClass="mass-start-value" text="—" />
+                        <Label styleClass="field-label" text="Шаг:" />
+                        <TextField fx:id="serialStepField" prefWidth="60" promptText="1" styleClass="modern-text-field" text="1" />
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Количество записей:" styleClass="field-label"/>
-                        <TextField fx:id="countRowsField" promptText="100" prefWidth="80"
-                                   styleClass="modern-text-field"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label styleClass="field-label" text="Количество записей:" />
+                        <TextField fx:id="countRowsField" prefWidth="80" promptText="100" styleClass="modern-text-field" />
                     </HBox>
 
-                    <Label text="Внимание: начальные значения берутся из полей выше."
-                           styleClass="info-label" wrapText="true"/>
-                    <Label text="Перед сохранением будет проверена уникальность номеров в базе."
-                           styleClass="warning-label" wrapText="true"/>
+                    <Label styleClass="info-label" text="Внимание: начальные значения берутся из полей выше." wrapText="true" />
+                    <Label styleClass="warning-label" text="Перед сохранением будет проверена уникальность номеров в базе." wrapText="true" />
                 </VBox>
             </TitledPane>
 
             <HBox alignment="CENTER_RIGHT" spacing="15.0">
                 <padding>
-                    <Insets top="10.0"/>
+                    <Insets top="10.0" />
                 </padding>
-                <Button onAction="#handleCloseClick" styleClass="btn-secondary" text="Отмена"/>
-                <Button fx:id="saveBtn" onAction="#handleSaveClick" styleClass="btn-primary" text="Сохранить запись"/>
+                <Button onAction="#handleCloseClick" styleClass="btn-secondary" text="Отмена" />
+                <Button fx:id="saveBtn" onAction="#handleSaveClick" styleClass="btn-primary" text="Сохранить запись" />
             </HBox>
         </VBox>
     </ScrollPane>

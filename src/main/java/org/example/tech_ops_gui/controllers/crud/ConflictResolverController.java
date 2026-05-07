@@ -1,10 +1,15 @@
 package org.example.tech_ops_gui.controllers.crud;
 
 import javafx.application.Platform;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
@@ -13,8 +18,7 @@ import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.services.EquipmentBatchService;
 import org.example.tech_ops_gui.utils.NotificationManager;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 public class ConflictResolverController {
     @FXML private TableView<ConflictWrapper> conflictTable;

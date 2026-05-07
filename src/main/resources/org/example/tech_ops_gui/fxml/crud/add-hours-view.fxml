@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" alignment="CENTER"
+      style="-fx-background-color: white; -fx-background-radius: 15; -fx-border-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);"
+      stylesheets="@../../css/auth/common.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.tech_ops_gui.controllers.crud.AddHoursViewController">
+
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+
+    <VBox spacing="5" alignment="CENTER">
+        <Label text="Добавление наработки" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"/>
+        <Label fx:id="typeLabel" style="-fx-text-fill: #34495E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+        <Label fx:id="nameLabel" style="-fx-text-fill: #5D6D7E; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+        <Label fx:id="invLabel" style="-fx-text-fill: #95A5A6; -fx-font-size: 12px; -fx-font-style: italic;"/>
+    </VBox>
+
+
+    <VBox spacing="8" alignment="CENTER_LEFT">
+        <Label text="Количество часов:" styleClass="field-label"/>
+        <TextField fx:id="hoursField" promptText="Например: 10" styleClass="modern-text-field" prefWidth="250"/>
+    </VBox>
+
+
+    <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+        <Button text="Отмена" onAction="#handleCancel" styleClass="btn-secondary"/>
+        <Button text="Сохранить" fx:id="saveBtn" onAction="#handleSave" styleClass="btn-primary"/>
+    </HBox>
+</VBox>

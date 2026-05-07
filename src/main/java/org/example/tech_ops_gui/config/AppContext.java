@@ -1,6 +1,7 @@
 package org.example.tech_ops_gui.config;
 
 import org.example.tech_ops_gui.api.ApiClient;
+import org.example.tech_ops_gui.repository.DepartmentRepository;
 import org.example.tech_ops_gui.repository.EquipmentRepository;
 import org.example.tech_ops_gui.repository.EquipmentTypeRepository;
 import org.example.tech_ops_gui.repository.UserRepository;
@@ -19,11 +20,13 @@ public class AppContext {
     private static final EquipmentService equipmentService = new EquipmentService(apiClient);
     private static final EquipmentTypeService equipmentTypeService = new EquipmentTypeService(apiClient);
     private static final AdminService adminService = new AdminService(apiClient);
+    private static final DepartmentService departmentService = new DepartmentService(apiClient);
 
 
     private static final UserRepository userRepository = new UserRepository(userService, webSocketClient);
     private static final EquipmentRepository equipmentRepository = new EquipmentRepository(equipmentService, webSocketClient);
     private static final EquipmentTypeRepository equipmentTypeRepository = new EquipmentTypeRepository(equipmentTypeService);
+    private static final DepartmentRepository departmentRepository = new DepartmentRepository(departmentService);
 
     private static final EquipmentBatchService equipmentBatchService = new EquipmentBatchService(equipmentRepository);
 
@@ -36,6 +39,7 @@ public class AppContext {
         equipmentTypeRepository.initData();
         userRepository.initData();
         equipmentRepository.initData();
+        departmentRepository.initData();
     }
 
     public static ApiClient getApiClient() { return apiClient; }
@@ -49,4 +53,5 @@ public class AppContext {
     public static EquipmentTypeRepository getEquipmentTypeRepository() { return equipmentTypeRepository; }
     public static UserRepository getUserRepository() { return userRepository; }
     public static EquipmentService getEquipmentService() {return equipmentService;}
+    public static DepartmentRepository getDepartmentRepository() {return departmentRepository;}
 }

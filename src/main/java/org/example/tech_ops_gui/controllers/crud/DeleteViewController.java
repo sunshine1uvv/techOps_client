@@ -1,5 +1,6 @@
 package org.example.tech_ops_gui.controllers.crud;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
 import javafx.collections.transformation.FilteredList;
@@ -10,7 +11,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import org.example.tech_ops_gui.config.AppContext;
 import org.example.tech_ops_gui.dto.EquipmentDto;
+import org.example.tech_ops_gui.exceptions.CustomExceptionHandler;
 import org.example.tech_ops_gui.repository.EquipmentRepository;
+import org.example.tech_ops_gui.utils.NotificationManager;
 import org.example.tech_ops_gui.utils.WindowManager;
 
 public class DeleteViewController {
@@ -64,7 +67,15 @@ public class DeleteViewController {
 
     @FXML
     private void handleDeleteClick(ActionEvent event) {
-        equipmentRepository.delete(selectedItem.getId());
+        equipmentRepository.delete(selectedItem.getId())
+                .thenRun(() -> Platform.runLater(() -> {
+                    NotificationManager.showInfo("Успех", "Оборудование успешно удалено.");
+                    WindowManager.close(event);
+                }))
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> CustomExceptionHandler.handleError(ex));
+                    return null;
+                });
     }
 
 

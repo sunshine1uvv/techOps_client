@@ -4,12 +4,11 @@ import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.util.StringConverter;
 import org.controlsfx.control.SearchableComboBox;
 import org.example.tech_ops_gui.config.AppContext;
+import org.example.tech_ops_gui.dto.DepartmentDto;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.dto.UserDto;
 import org.example.tech_ops_gui.dto.EquipmentTypeDto;
@@ -22,19 +21,34 @@ import org.example.tech_ops_gui.utils.NotificationManager;
 import org.example.tech_ops_gui.utils.WindowManager;
 
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 public class EditViewController {
 
-    @FXML private Label sideInvNumLabel;
-    @FXML private TextField invNumField;
-    @FXML private TextField serialNumField;
-    @FXML private TextField nameField;
-    @FXML private TextField locationField;
+    @FXML
+    private Label sideInvNumLabel;
+    @FXML
+    private TextField invNumField;
+    @FXML
+    private TextField serialNumField;
+    @FXML
+    private TextField nameField;
+    @FXML
+    private TextField locationField;
+
+    @FXML
+    private SearchableComboBox<DepartmentDto> departmentCombo;
+    @FXML
+    private TextField maxHoursField;
+
 
     // ВАЖНО: Изменен тип SearchableComboBox на UserDto, как в AddViewController
-    @FXML private SearchableComboBox<EquipmentTypeDto> typeCombo;
-    @FXML private SearchableComboBox<UserDto> employeeCombo;
-    @FXML private ComboBox<String> categoryCombo;
+    @FXML
+    private SearchableComboBox<EquipmentTypeDto> typeCombo;
+    @FXML
+    private SearchableComboBox<UserDto> employeeCombo;
+    @FXML
+    private ComboBox<String> categoryCombo;
 
     private final EquipmentDto selectedItem;
     private final EquipmentTypeRepository typeRepository = AppContext.getEquipmentTypeRepository();
@@ -49,6 +63,9 @@ public class EditViewController {
         setupCategoryCombo();
         setupTypeCombo();
         setupEmployeeCombo();
+        setupDepartmentCombo();
+        UnaryOperator<TextFormatter.Change> integerFilter = change -> change.getControlNewText().matches("\\d*") ? change : null;
+        maxHoursField.setTextFormatter(new TextFormatter<>(integerFilter));
         fillFieldsWithData();
     }
 
@@ -62,17 +79,47 @@ public class EditViewController {
 
         typeCombo.setItems(level6Types);
         typeCombo.setConverter(new StringConverter<>() {
-            @Override public String toString(EquipmentTypeDto type) { return type == null ? "" : type.getName(); }
-            @Override public EquipmentTypeDto fromString(String string) { return null; }
+            @Override
+            public String toString(EquipmentTypeDto type) {
+                return type == null ? "" : type.getName();
+            }
+
+            @Override
+            public EquipmentTypeDto fromString(String string) {
+                return null;
+            }
         });
+    }
+
+    private void setupDepartmentCombo() {
+        departmentCombo.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(DepartmentDto d) {
+                return d == null ? "" : d.getName();
+            }
+
+            @Override
+            public DepartmentDto fromString(String string) {
+                return null;
+            }
+        });
+
+        departmentCombo.setItems(AppContext.getDepartmentRepository().getDepartmentsList());
     }
 
     private void setupEmployeeCombo() {
         // Теперь мы берем пользователей синхронно из репозитория, а не делаем лишний запрос к API
         employeeCombo.setItems(AppContext.getUserRepository().getUserList());
         employeeCombo.setConverter(new StringConverter<>() {
-            @Override public String toString(UserDto user) { return user == null ? "" : FormatUtil.buildFullName(user); }
-            @Override public UserDto fromString(String string) { return null; }
+            @Override
+            public String toString(UserDto user) {
+                return user == null ? "" : FormatUtil.buildFullName(user);
+            }
+
+            @Override
+            public UserDto fromString(String string) {
+                return null;
+            }
         });
     }
 
@@ -94,12 +141,22 @@ public class EditViewController {
         }
 
         if (selectedItem.getEmployee() != null) {
-            // Ищем точный объект сотрудника в списке, чтобы ComboBox его корректно выбрал
             Long empId = selectedItem.getEmployee().getId();
             employeeCombo.getItems().stream()
                     .filter(u -> u.getId().equals(empId))
                     .findFirst()
                     .ifPresent(u -> employeeCombo.setValue(u));
+        }
+
+        if (selectedItem != null && selectedItem.getDepartment() != null) {
+            Long depId = selectedItem.getDepartment().getId();
+            departmentCombo.getItems().stream()
+                    .filter(d -> d.getId().equals(depId))
+                    .findFirst()
+                    .ifPresent(departmentCombo::setValue);
+        }
+        if (selectedItem.getMaxOperatingHours() != null) {
+            maxHoursField.setText(String.valueOf(selectedItem.getMaxOperatingHours()));
         }
     }
 
@@ -134,7 +191,11 @@ public class EditViewController {
         equipment.setType(typeCombo.getValue());
         equipment.setCategory(categoryCombo.getValue() != null ? Integer.parseInt(categoryCombo.getValue()) : null);
         equipment.setLocation(getSafeText(locationField));
-        equipment.setEmployee(employeeCombo.getValue()); // Теперь тут сразу берется объект UserDto
+        equipment.setEmployee(employeeCombo.getValue());
+        equipment.setDepartment(departmentCombo.getValue());
+        String maxH = getSafeText(maxHoursField);
+        equipment.setMaxOperatingHours(maxH != null ? Integer.parseInt(maxH) : null);
+        equipment.setCurrentOperatingHours(selectedItem.getCurrentOperatingHours());
         return equipment;
     }
 

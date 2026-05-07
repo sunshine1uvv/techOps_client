@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.example.tech_ops_gui.dto.EquipmentDto;
+import org.example.tech_ops_gui.dto.OperatingHoursLogDto;
 import org.example.tech_ops_gui.exceptions.CustomExceptionHandler;
 import org.example.tech_ops_gui.services.EquipmentService;
 import org.example.tech_ops_gui.synchronization.EquipmentSyncMessage;
@@ -58,6 +59,18 @@ public class EquipmentRepository {
 
     public CompletableFuture<Void> attach(Long parentId, Long childId) {
         return service.attachEquipment(parentId, childId);
+    }
+
+    public CompletableFuture<Void> addOperatingHours(OperatingHoursLogDto logDto) {
+        return service.addOperatingHours(logDto);
+    }
+
+    public CompletableFuture<Void> deleteOperatingHours(Long logId) {
+        return service.deleteOperatingHours(logId);
+    }
+
+    public CompletableFuture<List<OperatingHoursLogDto>> getHoursHistory(Long equipmentId) {
+        return service.getHoursHistory(equipmentId);
     }
 
 

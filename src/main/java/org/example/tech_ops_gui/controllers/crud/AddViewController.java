@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import org.controlsfx.control.SearchableComboBox;
 import org.example.tech_ops_gui.config.AppContext;
+import org.example.tech_ops_gui.dto.DepartmentDto;
 import org.example.tech_ops_gui.dto.EquipmentDto;
 import org.example.tech_ops_gui.dto.UserDto;
 import org.example.tech_ops_gui.dto.EquipmentTypeDto;
@@ -31,13 +32,24 @@ import java.util.function.UnaryOperator;
 
 public class AddViewController {
 
-    @FXML private SearchableComboBox<EquipmentTypeDto> typeCombo;
-    @FXML private SearchableComboBox<UserDto> employeeCombo;
-    @FXML private ComboBox<String> categoryCombo;
-    @FXML private TextField invNumField, serialNumField, nameField, locationField;
-    @FXML private Label invStartLabel, serialStartLabel;
-    @FXML private TextField invStepField, serialStepField, countRowsField;
-    @FXML private Button saveBtn;
+    @FXML
+    private SearchableComboBox<EquipmentTypeDto> typeCombo;
+    @FXML
+    private SearchableComboBox<UserDto> employeeCombo;
+    @FXML
+    private ComboBox<String> categoryCombo;
+    @FXML
+    private TextField invNumField, serialNumField, nameField, locationField;
+    @FXML
+    private Label invStartLabel, serialStartLabel;
+    @FXML
+    private TextField invStepField, serialStepField, countRowsField;
+    @FXML
+    private Button saveBtn;
+    @FXML
+    private SearchableComboBox<DepartmentDto> departmentCombo;
+    @FXML
+    private TextField maxHoursField;
 
     private final EquipmentBatchService batchService = AppContext.getEquipmentBatchService();
 
@@ -47,6 +59,7 @@ public class AddViewController {
         setupCategoryCombo();
         setupTypeCombo();
         setupEmployeeCombo();
+        setupDepartmentCombo();
         setupMassAddLabels();
         bindFieldsToQuantity();
     }
@@ -196,6 +209,11 @@ public class AddViewController {
         dto.setLocation(getSafeText(locationField));
         dto.setEmployee(employeeCombo.getValue());
         dto.setCategory(categoryCombo.getValue() != null ? Integer.parseInt(categoryCombo.getValue()) : null);
+        dto.setDepartment(departmentCombo.getValue());
+        String maxH = getSafeText(maxHoursField);
+        if (maxH != null) {
+            dto.setMaxOperatingHours(Integer.parseInt(maxH));
+        }
         return dto;
     }
 
@@ -222,6 +240,7 @@ public class AddViewController {
         countRowsField.setTextFormatter(new TextFormatter<>(integerFilter));
         invStepField.setTextFormatter(new TextFormatter<>(integerFilter));
         serialStepField.setTextFormatter(new TextFormatter<>(integerFilter));
+        maxHoursField.setTextFormatter(new TextFormatter<>(integerFilter));
     }
 
     private void setupCategoryCombo() {
@@ -233,16 +252,45 @@ public class AddViewController {
         level6Types.setPredicate(type -> type.getLevel() != null && type.getLevel() == 6);
         typeCombo.setItems(level6Types);
         typeCombo.setConverter(new StringConverter<>() {
-            @Override public String toString(EquipmentTypeDto type) { return type == null ? "" : type.getName(); }
-            @Override public EquipmentTypeDto fromString(String string) { return null; }
+            @Override
+            public String toString(EquipmentTypeDto type) {
+                return type == null ? "" : type.getName();
+            }
+
+            @Override
+            public EquipmentTypeDto fromString(String string) {
+                return null;
+            }
         });
     }
 
     private void setupEmployeeCombo() {
         employeeCombo.setItems(AppContext.getUserRepository().getUserList());
         employeeCombo.setConverter(new StringConverter<>() {
-            @Override public String toString(UserDto u) { return u == null ? "" : u.getSurname() + " " + u.getName(); }
-            @Override public UserDto fromString(String string) { return null; }
+            @Override
+            public String toString(UserDto u) {
+                return u == null ? "" : u.getSurname() + " " + u.getName() + " " + u.getPatronymic();
+            }
+
+            @Override
+            public UserDto fromString(String string) {
+                return null;
+            }
+        });
+    }
+
+    private void setupDepartmentCombo() {
+        departmentCombo.setItems(AppContext.getDepartmentRepository().getDepartmentsList());
+        departmentCombo.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(DepartmentDto d) {
+                return d == null ? "" : d.getName();
+            }
+
+            @Override
+            public DepartmentDto fromString(String string) {
+                return null;
+            }
         });
     }
 
