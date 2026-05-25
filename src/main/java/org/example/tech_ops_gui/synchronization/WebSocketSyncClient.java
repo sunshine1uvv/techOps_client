@@ -32,7 +32,8 @@ public class WebSocketSyncClient {
     private final List<Consumer<UserSyncMessage>> userSubscribers = new CopyOnWriteArrayList<>();
     private final List<Consumer<RequestResponseSyncMessage>> requestSubscribers = new CopyOnWriteArrayList<>();
     private final List<Consumer<EquipmentSyncMessage>> equipmentSubscribers = new CopyOnWriteArrayList<>();
-
+    private final List<Consumer<EquipmentTypeSyncMessage>> equipmentTypeSubscribers = new CopyOnWriteArrayList<>();
+    private final List<Consumer<DepartmentSyncMessage>> departmentSubscribers = new CopyOnWriteArrayList<>();
     // Приватный конструктор (Singleton)
     public WebSocketSyncClient() {
         initStompClient();
@@ -137,6 +138,22 @@ public class WebSocketSyncClient {
         return onMessage;
     }
 
+    public Consumer<EquipmentTypeSyncMessage> subscribeEquipmentTypes(Consumer<EquipmentTypeSyncMessage> onMessage) {
+        equipmentTypeSubscribers.add(onMessage);
+        if (session != null && session.isConnected()) {
+            doSubscribeEquipmentTypes(onMessage);
+        }
+        return onMessage;
+    }
+
+    public Consumer<DepartmentSyncMessage> subscribeDepartments(Consumer<DepartmentSyncMessage> onMessage) {
+        departmentSubscribers.add(onMessage);
+        if (session != null && session.isConnected()) {
+            doSubscribeDepartments(onMessage);
+        }
+        return onMessage;
+    }
+
     // --- Методы отписки (Вызываются при закрытии окон) ---
 
     public void unsubscribeEquipment(Consumer<EquipmentSyncMessage> onMessage) {
@@ -151,12 +168,22 @@ public class WebSocketSyncClient {
         requestSubscribers.remove(onMessage);
     }
 
+    public void unsubscribeEquipmentTypes(Consumer<EquipmentTypeSyncMessage> onMessage) {
+        equipmentTypeSubscribers.remove(onMessage);
+    }
+
+    public void unsubscribeDepartments(Consumer<DepartmentSyncMessage> onMessage) {
+        departmentSubscribers.remove(onMessage);
+    }
+
     // --- Внутренняя логика STOMP подписок ---
 
     private void restoreSubscriptions() {
         equipmentSubscribers.forEach(this::doSubscribeEquipment);
         userSubscribers.forEach(this::doSubscribeUsers);
         requestSubscribers.forEach(this::doSubscribeRequests);
+        equipmentTypeSubscribers.forEach(this::doSubscribeEquipmentTypes);
+        departmentSubscribers.forEach(this::doSubscribeDepartments);
     }
 
     private void doSubscribeEquipment(Consumer<EquipmentSyncMessage> onMessage) {
@@ -177,6 +204,20 @@ public class WebSocketSyncClient {
         session.subscribe("/topic/requests", new StompFrameHandler() {
             @Override public Type getPayloadType(StompHeaders headers) { return RequestResponseSyncMessage.class; }
             @Override public void handleFrame(StompHeaders headers, Object payload) { onMessage.accept((RequestResponseSyncMessage) payload); }
+        });
+    }
+
+    private void doSubscribeEquipmentTypes(Consumer<EquipmentTypeSyncMessage> onMessage) {
+        session.subscribe("/topic/equipment-types", new StompFrameHandler() {
+            @Override public Type getPayloadType(StompHeaders headers) { return EquipmentTypeSyncMessage.class; }
+            @Override public void handleFrame(StompHeaders headers, Object payload) { onMessage.accept((EquipmentTypeSyncMessage) payload); }
+        });
+    }
+
+    private void doSubscribeDepartments(Consumer<DepartmentSyncMessage> onMessage) {
+        session.subscribe("/topic/departments", new StompFrameHandler() {
+            @Override public Type getPayloadType(StompHeaders headers) { return DepartmentSyncMessage.class; }
+            @Override public void handleFrame(StompHeaders headers, Object payload) { onMessage.accept((DepartmentSyncMessage) payload); }
         });
     }
 

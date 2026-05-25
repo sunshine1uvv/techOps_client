@@ -36,4 +36,24 @@ public class EquipmentTypeService {
             }
         });
     }
+
+    public CompletableFuture<Void> save(EquipmentTypeDto dto) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                apiClient.postVoid("/equipment/types", dto);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public CompletableFuture<Void> delete(Long id) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                apiClient.delete("/equipment/types/" + id);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 }

@@ -31,6 +31,8 @@ public class MainController implements Cleanable {
     private Button usersViewBtn;
     @FXML
     private BorderPane rootPane;
+    @FXML
+    private Button adminMenuBtn;
 
     private Object currentController;
     private UserRole currentRole;
@@ -43,8 +45,15 @@ public class MainController implements Cleanable {
     @FXML
     private void initialize() {
         currentRole = AppContext.getSessionManager().getRole();
-        registrationRequestsViewBtn.setVisible(currentRole == UserRole.SUPERADMIN);
-        usersViewBtn.setVisible(currentRole == UserRole.SUPERADMIN);
+        adminMenuBtn.managedProperty().bind(adminMenuBtn.visibleProperty());
+        registrationRequestsViewBtn.managedProperty().bind(registrationRequestsViewBtn.visibleProperty());
+        usersViewBtn.managedProperty().bind(usersViewBtn.visibleProperty());
+
+
+        boolean isSuperAdmin = (currentRole == UserRole.SUPERADMIN);
+        adminMenuBtn.setVisible(isSuperAdmin);
+        registrationRequestsViewBtn.setVisible(isSuperAdmin);
+        usersViewBtn.setVisible(isSuperAdmin);
 
         userRepository.getUserList().addListener(userListListener);
 
@@ -105,6 +114,12 @@ public class MainController implements Cleanable {
     @FXML
     private void loadProfileView() {
         loadView("/org/example/tech_ops_gui/fxml/users/profile-view.fxml");
+    }
+
+    @FXML
+    private void loadDirectoriesView() {
+        if (UserRole.SUPERADMIN != currentRole) return;
+        loadView("/org/example/tech_ops_gui/fxml/admin/directories-view.fxml");
     }
 
     @FXML

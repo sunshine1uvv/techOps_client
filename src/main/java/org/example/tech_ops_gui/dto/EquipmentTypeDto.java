@@ -5,14 +5,14 @@ import javafx.beans.property.*;
 import java.util.Objects;
 
 public class EquipmentTypeDto {
-    private SimpleLongProperty id= new SimpleLongProperty();
+    private ObjectProperty<Long> id = new SimpleObjectProperty<>();
     private ObjectProperty<EquipmentTypeDto> parent = new SimpleObjectProperty<EquipmentTypeDto>();
     private SimpleStringProperty name= new SimpleStringProperty();
     private SimpleIntegerProperty level= new SimpleIntegerProperty();
     private SimpleStringProperty code= new SimpleStringProperty();
     private SimpleStringProperty fullCode = new SimpleStringProperty();
 
-    public SimpleLongProperty getIdProperty() {
+    public  ObjectProperty<Long> getIdProperty() {
         return this.id;
     }
     public ObjectProperty<EquipmentTypeDto> getParentProperty() {

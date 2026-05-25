@@ -67,6 +67,19 @@
                         </HBox>
                     </graphic>
                 </Button>
+                <Button fx:id="adminMenuBtn" onAction="#loadDirectoriesView" styleClass="menu-button"
+                        style="-fx-background-color: transparent; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="10" alignment="CENTER">
+                            <ImageView fitWidth="24.0" preserveRatio="true">
+                                <image>
+                                    <Image url="@../icons/directories.png"/>
+                                </image>
+                            </ImageView>
+                            <Label text="Справочники" style="-fx-font-size: 14px;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
                 <Region VBox.vgrow="ALWAYS" />
                 <Button onAction="#logout" styleClass="menu-button"
                         style="-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #d9534f;">

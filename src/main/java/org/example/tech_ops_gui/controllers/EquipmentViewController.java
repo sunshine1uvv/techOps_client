@@ -136,6 +136,7 @@ public class EquipmentViewController {
         equipmentTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         configureTableColumns();
         UserRole role = AppContext.getSessionManager().getRole();
+        addEquipmentBtn.managedProperty().bind(addEquipmentBtn.visibleProperty());
         addEquipmentBtn.setVisible(role == UserRole.ADMIN || role == UserRole.SUPERADMIN);
         ObservableList<EquipmentDto> source = repository.getEquipmentList();
         filteredData = new FilteredList<>(source, p -> true);

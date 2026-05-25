@@ -25,8 +25,8 @@ public class AppContext {
 
     private static final UserRepository userRepository = new UserRepository(userService, webSocketClient);
     private static final EquipmentRepository equipmentRepository = new EquipmentRepository(equipmentService, webSocketClient);
-    private static final EquipmentTypeRepository equipmentTypeRepository = new EquipmentTypeRepository(equipmentTypeService);
-    private static final DepartmentRepository departmentRepository = new DepartmentRepository(departmentService);
+    private static final EquipmentTypeRepository equipmentTypeRepository = new EquipmentTypeRepository(equipmentTypeService, webSocketClient);
+    private static final DepartmentRepository departmentRepository = new DepartmentRepository(departmentService, webSocketClient);
 
     private static final EquipmentBatchService equipmentBatchService = new EquipmentBatchService(equipmentRepository);
 

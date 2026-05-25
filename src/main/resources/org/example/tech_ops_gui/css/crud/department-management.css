@@ -1,0 +1,49 @@
+/* src/main/resources/org/example/tech_ops_gui/css/crud/department-management.css */
+
+.management-container {
+    -fx-background-color: #ECF0F1;
+}
+
+.left-panel {
+    -fx-background-color: #F8F9F9;
+    -fx-padding: 20;
+    -fx-border-color: #BDC3C7;
+    -fx-border-width: 0 1 0 0;
+}
+
+.right-panel {
+    -fx-background-color: white;
+    -fx-padding: 25;
+}
+
+.header-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2C3E50;
+}
+
+.subheader-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7F8C8D;
+}
+
+.form-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #34495E;
+}
+
+/* Стилизация таблицы/списка */
+.modern-table {
+    -fx-background-color: transparent;
+    -fx-border-color: #D5DBDB;
+    -fx-border-radius: 4;
+}
+
+.warning-box {
+    -fx-background-color: #FDEDEC;
+    -fx-border-color: #F5B7B1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 12;
+}

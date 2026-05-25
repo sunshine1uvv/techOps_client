@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.controlsfx.control.SearchableComboBox?>
+
+<HBox prefWidth="850" prefHeight="500" spacing="0" styleClass="management-container"
+      stylesheets="@../../css/auth/common.css, @../../css/crud/department-management.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.tech_ops_gui.controllers.admin.DepartmentDeleteViewController">
+
+    <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="left-panel">
+        <Label styleClass="header-label" text="Справочник подразделений" />
+        <Label styleClass="subheader-label" text="Выберите подразделение из списка для удаления" wrapText="true"/>
+
+        <ListView fx:id="departmentListView" VBox.vgrow="ALWAYS" styleClass="modern-table"/>
+    </VBox>
+
+    <VBox prefWidth="420" minWidth="420" spacing="20" styleClass="right-panel">
+        <VBox spacing="5">
+            <Label styleClass="header-label" text="Удаление подразделения" />
+            <Label styleClass="subheader-label" text="Исключение подразделения из базы данных" />
+        </VBox>
+
+        <Separator />
+
+        <VBox spacing="20" VBox.vgrow="ALWAYS">
+            <HBox styleClass="warning-box">
+                <Label style="-fx-text-fill: #C0392B; -fx-font-weight: bold; -fx-font-size: 12px;"
+                       text="Внимание! Удаление невозможно, если к подразделению привязаны сотрудники или оборудование." wrapText="true" />
+            </HBox>
+
+            <VBox spacing="5">
+                <Label styleClass="form-label" text="Выберите подразделение для удаления *" />
+                <SearchableComboBox fx:id="departmentComboBox" maxWidth="Infinity" promptText="Выберите слева или начните вводить..." styleClass="searchable-combo-box" />
+            </VBox>
+        </VBox>
+
+        <Separator />
+
+        <HBox alignment="CENTER_RIGHT" spacing="15">
+            <Button onAction="#handleCancel" style="-fx-background-color: transparent; -fx-border-color: #BDC3C7; -fx-border-radius: 4; -fx-text-fill: #7F8C8D; -fx-font-weight: bold; -fx-padding: 8 20; -fx-cursor: hand;" text="Отмена" />
+            <Button onAction="#handleDelete" style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 4; -fx-cursor: hand;" text="Удалить" />
+        </HBox>
+    </VBox>
+
+</HBox>

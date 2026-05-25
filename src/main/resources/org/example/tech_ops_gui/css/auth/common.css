@@ -98,3 +98,45 @@
 .pending-row .table-cell {
     -fx-text-fill: #1e2a3a;
 }
+
+.searchable-combo-box {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.searchable-combo-box > .combo-box {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #DCDDE1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4 4;
+    -fx-font-size: 14px;
+}
+
+
+.searchable-combo-box > .combo-box:focused {
+    -fx-border-color: #3498DB;
+    -fx-background-color: white;
+}
+
+.searchable-combo-box:disabled {
+    -fx-opacity: 1.0;
+}
+
+/* Стилизуем внутренний combo-box для отключенного состояния */
+.searchable-combo-box:disabled > .combo-box {
+    -fx-background-color: #EAECEE; /* Чуть более темный серый фон, как у вашего fullCodeField */
+    -fx-border-color: #DCDDE1;
+}
+
+/* Делаем текст внутри отключенного комбобокса серым */
+.searchable-combo-box:disabled > .combo-box > .list-cell {
+    -fx-text-fill: #95A5A6;
+}
+
+/* Если внутри ControlsFX SearchableComboBox используется TextField, стилизуем и его текст/prompt */
+.searchable-combo-box:disabled > .combo-box .text-field {
+    -fx-text-fill: #95A5A6;
+    -fx-prompt-text-fill: #95A5A6;
+}
